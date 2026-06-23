@@ -1,5 +1,4 @@
-import type { Config } from 'tailwindcss';
-
+/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -9,14 +8,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Cow Fresh brand tokens from PRD
         'cf-green': 'var(--cf-green)',
         'cf-navy': 'var(--cf-navy)',
         'cf-sky': 'var(--cf-sky)',
         'cf-off-white': 'var(--cf-off-white)',
         'cf-charcoal': 'var(--cf-charcoal)',
         'cf-white': 'var(--cf-white)',
-        // Semantic colors
         'primary': 'var(--cf-green)',
         'primary-foreground': 'var(--cf-white)',
         'secondary': 'var(--cf-navy)',
@@ -44,4 +41,4 @@ export default {
     },
   },
   plugins: [],
-} as Config;
+};
