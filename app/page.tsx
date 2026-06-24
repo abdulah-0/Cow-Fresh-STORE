@@ -118,7 +118,9 @@ export default async function Home() {
                     style={{ borderColor: "rgba(146,204,252,0.2)", background: "#FAF9F6" }}>
 
                     {/* Image area with sky gradient */}
-                    <div className="relative aspect-square flex items-center justify-center overflow-hidden p-4"
+                    <div 
+                      id={product.slug === "almond-milk" ? "product-image-almond-milk" : undefined}
+                      className="relative aspect-square flex items-center justify-center overflow-hidden p-4"
                       style={{ background: "linear-gradient(160deg,rgba(146,204,252,0.22) 0%,#fff 70%)" }}>
                       <Image src={img} alt={product.name} fill
                         className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
