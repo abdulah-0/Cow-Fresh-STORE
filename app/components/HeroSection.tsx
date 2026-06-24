@@ -1,221 +1,206 @@
 "use client";
 
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useReducedMotion,
+  useSpring,
+} from "framer-motion";
+import { useRef } from "react";
 import Image from "next/image";
 
-const heroProducts = [
-  { id: "1", name: "Almond Milk", image: "/images/products/almond-milk/almond_doodh.png", is_hero: true },
-  { id: "2", name: "Desi Ghee", image: "/images/products/ghee/desi_ghee.png", is_hero: false },
-  { id: "3", name: "Lassi", image: "/images/products/lassi/lassi.png", is_hero: false },
-  { id: "4", name: "Milk Packets", image: "/images/products/milk-packet/milk.png", is_hero: false },
-  { id: "5", name: "Yogurt Packets", image: "/images/products/yogurt-packet/yogurt.png", is_hero: false },
+/* ── Product definitions ── */
+const ALL_PRODUCTS = [
+  { id: "ghee",       name: "Desi Ghee",   image: "/images/products/ghee/desi_ghee.png",             isHero: false },
+  { id: "lassi",      name: "Lassi",        image: "/images/products/lassi/lassi.png",                isHero: false },
+  { id: "almond",     name: "Almond Milk",  image: "/images/products/almond-milk/almond_doodh.png",   isHero: true  },
+  { id: "milk",       name: "Milk Packets", image: "/images/products/milk-packet/milk.png",           isHero: false },
+  { id: "yogurt",     name: "Yogurt",       image: "/images/products/yogurt-packet/yogurt.png",       isHero: false },
 ];
 
+/* Exit direction for each secondary product (in order: ghee, lassi, milk, yogurt) */
+const EXIT = [
+  { x: -150, y: -70, rotate: -22 },
+  { x: -75,  y: -55, rotate: -12 },
+  { x: 75,   y: -55, rotate:  12 },
+  { x: 150,  y: -70, rotate:  22 },
+];
+
+/* ── Isolated motion wrapper for each secondary product ── */
+function SecondaryProduct({
+  product,
+  exitX, exitY, exitRotate,
+  smooth,
+  prefersReduced,
+}: {
+  product: typeof ALL_PRODUCTS[0];
+  exitX: number; exitY: number; exitRotate: number;
+  smooth: ReturnType<typeof useSpring>;
+  prefersReduced: boolean | null;
+}) {
+  const x  = useTransform(smooth, [0, 0.55], prefersReduced ? [0, 0] : [0, exitX]);
+  const y  = useTransform(smooth, [0, 0.55], prefersReduced ? [0, 0] : [0, exitY]);
+  const s  = useTransform(smooth, [0, 0.50], [0.88, prefersReduced ? 0.88 : 0]);
+  const o  = useTransform(smooth, [0, 0.45], [1, 0]);
+  const r  = useTransform(smooth, [0, 0.55], prefersReduced ? [0, 0] : [0, exitRotate]);
+
+  return (
+    <motion.div
+      style={{ x, y, scale: s, opacity: o, rotate: r, zIndex: 20, flex: "0 0 auto", transformStyle: "preserve-3d" }}
+      className="flex-shrink-0 w-20 sm:w-28 md:w-36 lg:w-44"
+    >
+      <div className="relative w-full aspect-[3/5]">
+        <Image src={product.image} alt={product.name} fill
+          className="object-contain"
+          priority
+          sizes="(max-width:640px) 80px,(max-width:768px) 112px,176px"
+        />
+      </div>
+      <p className="text-center text-[10px] sm:text-xs font-bold text-cf-navy/60 mt-2 tracking-wide">
+        {product.name}
+      </p>
+    </motion.div>
+  );
+}
+
+/* ── Hero bottle (almond milk) ── */
+function HeroBottle({
+  product,
+  smooth,
+  prefersReduced,
+}: {
+  product: typeof ALL_PRODUCTS[0];
+  smooth: ReturnType<typeof useSpring>;
+  prefersReduced: boolean | null;
+}) {
+  const scale   = useTransform(smooth, [0, 0.5, 1], prefersReduced ? [1, 1, 1]    : [1.0, 1.35, 1.55]);
+  const rotateY = useTransform(smooth, [0, 0.6, 1], prefersReduced ? [0, 0, 0]    : [0, 14, 20]);
+  const shadow  = useTransform(smooth, [0, 0.5], [8, 40]);
+  const filter  = useTransform(shadow, (v) =>
+    `drop-shadow(0 ${v}px ${v * 1.5}px rgba(0,26,87,0.18))`
+  );
+
+  return (
+    <motion.div
+      style={{ scale, rotateY, filter, transformStyle: "preserve-3d", zIndex: 30, flex: "0 0 auto" }}
+      className="flex-shrink-0 w-28 sm:w-36 md:w-48 lg:w-56 relative"
+    >
+      <div className="relative w-full aspect-[3/5]">
+        <Image src={product.image} alt={product.name} fill
+          className="object-contain"
+          priority
+          sizes="(max-width:640px) 112px,(max-width:768px) 144px,224px"
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Main export ── */
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
+  const prefersReduced = useReducedMotion();
 
-  // Detect mobile viewport (SSR safe)
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
+  /* Scroll progress wired to the TALL outer section */
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
+  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
 
-  // Hero product transform values
-  // Desktop: scales 1 -> 1.25, Y-rotation 0 -> 15deg
-  // Mobile: scales 1 -> 1.1, Y-rotation remains 0 for performance and clarity
-  const heroScale = useTransform(
-    scrollYProgress,
-    [0, 0.6, 1],
-    shouldReduceMotion ? [1, 1, 1] : isMobile ? [1, 1.1, 1.15] : [1, 1.2, 1.35]
-  );
-  
-  const heroRotateY = useTransform(
-    scrollYProgress,
-    [0, 0.6, 1],
-    shouldReduceMotion ? [0, 0, 0] : isMobile ? [0, 0, 0] : [0, 10, 18]
-  );
+  /* Headline fade */
+  const textOpacity = useTransform(smooth, [0, 0.28], [1, 0]);
+  const textY       = useTransform(smooth, [0, 0.28], [0, -40]);
 
-  const heroRotateX = useTransform(
-    scrollYProgress,
-    [0, 0.6],
-    shouldReduceMotion ? [0, 0] : isMobile ? [0, 0] : [0, 5]
-  );
+  /* Background fade */
+  const bgOpacity   = useTransform(smooth, [0, 0.6], [1, 0.3]);
+  const greenOpacity = useTransform(smooth, [0.1, 0.7], [0, 0.6]);
 
-  // Text fading/translation
-  const textOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0]);
-  const textY = useTransform(scrollYProgress, [0, 0.35], ["0%", "-15%"]);
-
-  const heroProduct = heroProducts.find((p) => p.is_hero);
-  const secondaryProducts = heroProducts.filter((p) => !p.is_hero);
-
-  // Responsive offsets for the 4 secondary products (drift targets)
-  // [Ghee, Lassi, Milk, Yogurt]
-  const desktopOffsets = [
-    { x: -280, y: -150, scale: 0.8 }, // Top Left
-    { x: 280, y: -150, scale: 0.8 },  // Top Right
-    { x: -250, y: 150, scale: 0.75 }, // Bottom Left
-    { x: 250, y: 150, scale: 0.75 },  // Bottom Right
-  ];
-
-  const mobileOffsets = [
-    { x: -80, y: -120, scale: 0.6 },  // Top Left
-    { x: 80, y: -120, scale: 0.6 },   // Top Right
-    { x: -85, y: 90, scale: 0.55 },   // Bottom Left
-    { x: 85, y: 90, scale: 0.55 },    // Bottom Right
-  ];
+  const secondaries = ALL_PRODUCTS.filter((p) => !p.isHero);
+  const heroProd    = ALL_PRODUCTS.find((p) => p.isHero)!;
 
   return (
-    <section 
-      ref={containerRef} 
-      className="relative h-[130vh] md:h-[200vh] w-full overflow-hidden bg-cf-off-white"
-    >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
-        
-        {/* Sky gradient to represent cow fresh dairy aesthetic */}
-        <div className="absolute inset-0 bg-gradient-to-b from-cf-sky/20 via-cf-off-white to-cf-off-white z-0 pointer-events-none" />
+    /* Tall scroll container — the sticky child pins to viewport */
+    <section ref={containerRef} className="relative w-full" style={{ height: "220vh" }}>
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
 
-        {/* 3D Scene Wrapper */}
-        <div className="relative w-full h-full max-w-6xl mx-auto flex items-center justify-center z-20" style={{ perspective: 1000 }}>
-          
-          {/* Secondary Products Layer */}
-          {secondaryProducts.map((product, index) => {
-            const offsets = isMobile ? mobileOffsets : desktopOffsets;
-            const offset = offsets[index % offsets.length];
+        {/* Sky-blue radial background */}
+        <motion.div style={{ opacity: bgOpacity }}
+          className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(146,204,252,0.35) 0%, rgba(250,249,246,0) 75%)" }} />
+          <div className="absolute inset-0 bg-[#FAF9F6]" style={{ zIndex: -1 }} />
+        </motion.div>
 
-            // Scroll-linked transforms
-            // Secondary products drift outwards and scale down to create depth
-            const px = useTransform(
-              scrollYProgress,
-              [0, 0.5],
-              shouldReduceMotion 
-                ? [`${offset.x}px`, `${offset.x}px`]
-                : [`${offset.x}px`, `${offset.x * (isMobile ? 2.5 : 3)}px`]
-            );
-            
-            const py = useTransform(
-              scrollYProgress,
-              [0, 0.5],
-              shouldReduceMotion
-                ? [`${offset.y}px`, `${offset.y}px`]
-                : [`${offset.y}px`, `${offset.y * (isMobile ? 2.5 : 3)}px`]
-            );
+        {/* Green radial that appears as you scroll */}
+        <motion.div style={{ opacity: greenOpacity }}
+          className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 50% 50% at 50% 55%, rgba(69,197,23,0.12) 0%, transparent 70%)" }} />
+        </motion.div>
 
-            const ps = useTransform(
-              scrollYProgress,
-              [0, 0.5],
-              [offset.scale, shouldReduceMotion ? offset.scale : 0.2]
-            );
+        {/* ── PRODUCT ROW ── */}
+        <div className="absolute inset-0 flex items-center justify-center z-20"
+          style={{ perspective: 1200 }}>
+          <div className="flex items-end justify-center w-full max-w-5xl mx-auto px-4 gap-2 sm:gap-4 md:gap-6">
 
-            const po = useTransform(
-              scrollYProgress,
-              [0, 0.45],
-              [0.9, 0] // Fade out completely by 45% scroll
-            );
+            {/* Left secondary: ghee */}
+            <SecondaryProduct product={secondaries[0]} exitX={EXIT[0].x} exitY={EXIT[0].y} exitRotate={EXIT[0].rotate} smooth={smooth} prefersReduced={prefersReduced} />
+            {/* Left secondary: lassi */}
+            <SecondaryProduct product={secondaries[1]} exitX={EXIT[1].x} exitY={EXIT[1].y} exitRotate={EXIT[1].rotate} smooth={smooth} prefersReduced={prefersReduced} />
 
-            return (
-              <motion.div
-                key={product.id}
-                style={{ 
-                  x: px, 
-                  y: py, 
-                  scale: ps, 
-                  opacity: po,
-                  transformStyle: "preserve-3d"
-                }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none"
-              >
-                <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 filter drop-shadow-lg">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-contain"
-                    priority
-                    sizes="(max-width: 768px) 120px, 240px"
-                  />
-                </div>
-              </motion.div>
-            );
-          })}
+            {/* Centre HERO */}
+            <HeroBottle product={heroProd} smooth={smooth} prefersReduced={prefersReduced} />
 
-          {/* Hero Product (Almond Milk Bottle) */}
-          <motion.div
-            style={{
-              scale: heroScale,
-              rotateY: heroRotateY,
-              rotateX: heroRotateX,
-              transformStyle: "preserve-3d",
-              y: isMobile ? "-10%" : "0%"
-            }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30"
-          >
-            <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-80 md:h-80 filter drop-shadow-2xl">
-              <Image
-                src={heroProduct?.image || ""}
-                alt={heroProduct?.name || "Almond Milk"}
-                fill
-                className="object-contain"
-                priority
-                sizes="(max-width: 768px) 220px, 350px"
-              />
-            </div>
-          </motion.div>
+            {/* Right secondary: milk */}
+            <SecondaryProduct product={secondaries[2]} exitX={EXIT[2].x} exitY={EXIT[2].y} exitRotate={EXIT[2].rotate} smooth={smooth} prefersReduced={prefersReduced} />
+            {/* Right secondary: yogurt */}
+            <SecondaryProduct product={secondaries[3]} exitX={EXIT[3].x} exitY={EXIT[3].y} exitRotate={EXIT[3].rotate} smooth={smooth} prefersReduced={prefersReduced} />
 
-          {/* Text Content Overlay */}
-          <motion.div
-            style={{ 
-              opacity: textOpacity, 
-              y: textY,
-            }}
-            className="absolute bottom-10 md:bottom-16 left-1/2 -translate-x-1/2 z-30 text-center w-full px-4"
-          >
-            <span className="inline-block px-3 py-1 rounded-full bg-cf-green/10 text-cf-green text-xs md:text-sm font-extrabold mb-3 uppercase tracking-wider">
-              100% Grass-Fed Dairy
-            </span>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-heading mb-4 text-cf-navy tracking-tight leading-none">
-              Cow <span className="text-cf-green">Fresh</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-2xl mb-1 text-cf-charcoal font-semibold max-w-xl mx-auto">
-              Pure Dairy Products Delivered Direct
-            </p>
-            <p className="text-xs sm:text-sm md:text-lg mb-8 text-cf-charcoal/60 max-w-md mx-auto leading-relaxed">
-              Almond Milk &bull; Lassi &bull; Milk &bull; Yogurt &bull; Desi Ghee
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="/products"
-                className="w-full sm:w-auto bg-cf-green hover:bg-cf-green/90 text-white font-bold py-3.5 px-10 rounded-full transition-all text-base shadow-md hover:shadow-lg hover:scale-105 duration-300 text-center"
-              >
-                Shop Now
-              </a>
-              <button
-                onClick={() => {
-                  window.scrollTo({
-                    top: window.innerHeight * (isMobile ? 1.0 : 1.3),
-                    behavior: "smooth"
-                  });
-                }}
-                className="w-full sm:w-auto bg-white/80 hover:bg-white text-cf-navy font-bold py-3.5 px-8 rounded-full border border-cf-sky/30 transition-all text-sm text-center"
-              >
-                Learn More ↓
-              </button>
-            </div>
-          </motion.div>
-
+          </div>
         </div>
+
+        {/* ── HEADLINE (fades on scroll) ── */}
+        <motion.div style={{ opacity: textOpacity, y: textY }}
+          className="absolute bottom-10 md:bottom-16 left-1/2 -translate-x-1/2 z-40 text-center w-full px-4 pointer-events-none">
+
+          {/* Nature badge */}
+          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-extrabold mb-4 pointer-events-auto"
+            style={{ background: "rgba(69,197,23,0.1)", color: "#37a012", border: "1px solid rgba(69,197,23,0.3)", letterSpacing: "0.1em" }}>
+            🌿 100 % Natural · No Preservatives
+          </span>
+
+          <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold font-heading tracking-tight leading-none mb-3"
+            style={{ background: "linear-gradient(135deg,#001A57 0%,#003199 60%,#001A57 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            Cow&nbsp;<span style={{ WebkitTextFillColor: "#45C517" }}>Fresh</span>
+          </h1>
+
+          <p className="text-base sm:text-lg md:text-2xl font-semibold text-cf-navy/70 mb-1 max-w-xl mx-auto">
+            Farm-Pure Dairy — Delivered Cold
+          </p>
+          <p className="text-xs sm:text-sm text-cf-charcoal/50 mb-8 max-w-md mx-auto">
+            Almond Milk · Lassi · Milk · Yogurt · Desi Ghee
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pointer-events-auto">
+            <a href="/products"
+              className="inline-block font-bold py-3.5 px-10 rounded-full text-white text-sm shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+              style={{ background: "linear-gradient(135deg,#45C517,#37a012)" }}>
+              Shop Now
+            </a>
+            <a href="/about"
+              className="inline-block font-bold py-3.5 px-8 rounded-full text-sm border-2 bg-white/70 hover:bg-white transition-all hover:scale-105 backdrop-blur-sm"
+              style={{ borderColor: "rgba(0,26,87,0.2)", color: "#001A57" }}>
+              Our Story ↓
+            </a>
+          </div>
+        </motion.div>
+
+        {/* Bottom divider */}
+        <div className="absolute bottom-0 left-0 right-0 h-px z-50"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(0,26,87,0.12), transparent)" }} />
       </div>
     </section>
   );

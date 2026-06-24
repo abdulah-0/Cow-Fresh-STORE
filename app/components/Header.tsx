@@ -23,7 +23,16 @@ export function Header() {
 
   return (
     <>
-      <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-cf-sky/20">
+      <header
+        className="sticky top-0 z-40 border-b"
+        style={{
+          background: "rgba(250,249,246,0.85)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          borderBottomColor: "rgba(146,204,252,0.3)",
+          boxShadow: "0 1px 20px rgba(0,26,87,0.06)",
+        }}
+      >
         <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
           
           {/* Logo and Brand Name */}

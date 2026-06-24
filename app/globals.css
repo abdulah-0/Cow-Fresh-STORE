@@ -2,14 +2,66 @@
 
 :root {
   --cf-green: #45C517;
+  --cf-green-dark: #37a012;
+  --cf-green-pastel: #f0fdf4;
   --cf-navy: #001A57;
+  --cf-navy-dark: #000f33;
   --cf-sky: #92CCFC;
-  --cf-off-white: #FAFAF8;
+  --cf-sky-pastel: #f0f7ff;
+  --cf-off-white: #FAF9F6; /* Soft warm dairy cream tone */
   --cf-charcoal: #1C1C1E;
   --cf-white: #FFFFFF;
+  
+  /* System font fallbacks */
+  --font-geist-sans: "Poppins", sans-serif;
+  --font-geist-mono: "Inter", sans-serif;
 }
 
 body {
   background-color: var(--cf-off-white);
   color: var(--cf-charcoal);
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar to match Cow Fresh brand */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cf-off-white);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cf-sky);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cf-green);
+}
+
+/* Premium Gradient Utility Classes */
+.bg-dairy-radial-sky {
+  background: radial-gradient(circle at center, rgba(146, 204, 252, 0.22) 0%, rgba(250, 249, 246, 0) 75%);
+}
+
+.bg-dairy-radial-green {
+  background: radial-gradient(circle at center, rgba(69, 197, 23, 0.08) 0%, rgba(250, 249, 246, 0) 70%);
+}
+
+.bg-dairy-gradient-navy {
+  background: linear-gradient(135deg, var(--cf-navy) 0%, var(--cf-navy-dark) 100%);
+}
+
+.bg-dairy-gradient-green {
+  background: linear-gradient(135deg, var(--cf-green) 0%, var(--cf-green-dark) 100%);
+}
+
+.bg-dairy-gradient-mixed {
+  background: linear-gradient(135deg, rgba(146, 204, 252, 0.15) 0%, rgba(69, 197, 23, 0.05) 50%, rgba(250, 249, 246, 0) 100%);
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(146, 204, 252, 0.25);
 }
