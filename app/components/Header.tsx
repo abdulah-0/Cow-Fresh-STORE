@@ -24,24 +24,22 @@ export function Header() {
   return (
     <>
       <header
-        className="sticky top-0 z-40 border-b"
+        className="sticky top-0 z-40"
         style={{
-          background: "rgba(250,249,246,0.85)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          borderBottomColor: "rgba(146,204,252,0.3)",
-          boxShadow: "0 1px 20px rgba(0,26,87,0.06)",
+          background: "#001A57",
+          boxShadow: "0 2px 24px rgba(0,10,40,0.35)",
         }}
       >
         <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
           
           {/* Logo and Brand Name */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-cf-green rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300"
+              style={{ background: "linear-gradient(135deg,#45C517,#37a012)" }}>
               <span className="text-white font-bold text-lg md:text-xl font-heading">C</span>
             </div>
-            <span className="text-xl md:text-2xl font-bold text-cf-navy font-heading tracking-tight">
-              Cow <span className="text-cf-green">Fresh</span>
+            <span className="text-xl md:text-2xl font-bold font-heading tracking-tight text-white">
+              Cow <span style={{ color: "#45C517" }}>Fresh</span>
             </span>
           </Link>
 
@@ -53,13 +51,12 @@ export function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`font-semibold text-sm transition-colors relative py-1 ${
-                    isActive ? "text-cf-green" : "text-cf-navy hover:text-cf-green"
-                  }`}
+                  className="font-semibold text-sm transition-colors relative py-1"
+                  style={{ color: isActive ? "#45C517" : "rgba(255,255,255,0.82)" }}
                 >
                   {item.name}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-cf-green rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "#45C517" }} />
                   )}
                 </Link>
               );
@@ -71,9 +68,8 @@ export function Header() {
             {/* Admin link */}
             <Link
               href="/admin/dashboard"
-              className={`p-2 text-cf-navy hover:text-cf-green rounded-full transition-all hover:bg-cf-sky/10 ${
-                pathname === "/admin/dashboard" ? "text-cf-green bg-cf-sky/10" : ""
-              }`}
+              className="p-2 rounded-full transition-all"
+              style={{ color: pathname === "/admin/dashboard" ? "#45C517" : "rgba(255,255,255,0.75)" }}
               title="Admin Dashboard"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,9 +81,8 @@ export function Header() {
             {/* Account Profile link */}
             <Link
               href="/account"
-              className={`p-2 text-cf-navy hover:text-cf-green rounded-full transition-all hover:bg-cf-sky/10 ${
-                pathname === "/account" ? "text-cf-green bg-cf-sky/10" : ""
-              }`}
+              className="p-2 rounded-full transition-all"
+              style={{ color: pathname === "/account" ? "#45C517" : "rgba(255,255,255,0.75)" }}
               title="Customer Account"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,14 +93,16 @@ export function Header() {
             {/* Cart Button */}
             <button
               onClick={openCart}
-              className="p-2 text-cf-navy hover:text-cf-green rounded-full transition-all hover:bg-cf-sky/10 relative"
+              className="p-2 rounded-full transition-all relative"
+              style={{ color: "rgba(255,255,255,0.85)" }}
               aria-label="Open cart drawer"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-cf-green text-white font-bold text-[10px] md:text-xs w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm animate-pulse">
+                <span className="absolute -top-0.5 -right-0.5 text-white font-bold text-[10px] md:text-xs w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center border-2 shadow-sm"
+                  style={{ background: "#45C517", borderColor: "#001A57" }}>
                   {itemCount}
                 </span>
               )}
@@ -114,7 +111,8 @@ export function Header() {
             {/* Mobile Hamburger Button */}
             <button
               onClick={toggleMobileMenu}
-              className="md:hidden p-2 text-cf-navy hover:text-cf-green rounded-full transition-all"
+              className="md:hidden p-2 rounded-full transition-all"
+              style={{ color: "rgba(255,255,255,0.85)" }}
               aria-label="Toggle mobile menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +129,8 @@ export function Header() {
 
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-cf-sky/20 px-4 py-4 space-y-3 shadow-inner animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden px-4 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200"
+            style={{ background: "#001e6a", borderTop: "1px solid rgba(146,204,252,0.15)" }}>
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -139,9 +138,11 @@ export function Header() {
                   key={item.name}
                   href={item.href}
                   onClick={closeMobileMenu}
-                  className={`block py-2 px-3 rounded-xl font-semibold text-sm transition-all ${
-                    isActive ? "bg-cf-green/10 text-cf-green" : "text-cf-navy hover:bg-cf-sky/10"
-                  }`}
+                  className="block py-2.5 px-4 rounded-xl font-semibold text-sm transition-all"
+                  style={{
+                    background: isActive ? "rgba(69,197,23,0.15)" : "transparent",
+                    color: isActive ? "#45C517" : "rgba(255,255,255,0.8)",
+                  }}
                 >
                   {item.name}
                 </Link>
