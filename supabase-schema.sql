@@ -82,3 +82,48 @@ CREATE POLICY "product-images-public-read" ON storage.objects FOR SELECT USING (
 CREATE POLICY "product-images-admin-upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images' AND auth.uid() IN (SELECT id FROM auth.users WHERE auth.users.role = 'admin'));
 CREATE POLICY "product-images-admin-update" ON storage.objects FOR UPDATE WITH CHECK (bucket_id = 'product-images' AND auth.uid() IN (SELECT id FROM auth.users WHERE auth.users.role = 'admin'));
 CREATE POLICY "product-images-admin-delete" ON storage.objects FOR DELETE WITH CHECK (bucket_id = 'product-images' AND auth.uid() IN (SELECT id FROM auth.users WHERE auth.users.role = 'admin'));
+
+-- ============================================
+-- ORDERS & ORDER ITEMS TABLES
+-- ============================================
+
+-- Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  delivery_address TEXT NOT NULL,
+  delivery_city TEXT NOT NULL,
+  delivery_slot TEXT NOT NULL,
+  payment_method TEXT NOT NULL DEFAULT 'COD',
+  status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Out for Delivery', 'Delivered', 'Cancelled')),
+  total_amount NUMERIC(10,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Order Items Table
+CREATE TABLE IF NOT EXISTS order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+  product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+  product_name TEXT NOT NULL,
+  variant_label TEXT NOT NULL,
+  price NUMERIC(10,2) NOT NULL,
+  quantity INTEGER NOT NULL
+);
+
+-- Indexes for Orders
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+
+-- Enable RLS
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "orders_select_public" ON orders FOR SELECT USING (true);
+CREATE POLICY "orders_insert_public" ON orders FOR INSERT WITH CHECK (true);
+CREATE POLICY "orders_update_admin" ON orders FOR UPDATE WITH CHECK (true);
+CREATE POLICY "order_items_select_public" ON order_items FOR SELECT USING (true);
+CREATE POLICY "order_items_insert_public" ON order_items FOR INSERT WITH CHECK (true);
