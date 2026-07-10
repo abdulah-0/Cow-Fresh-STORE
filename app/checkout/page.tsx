@@ -451,14 +451,14 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={prevStep}
                   disabled={isSubmitting}
-                  className="px-6 py-3 border-2 border-cf-sky/40 text-cf-navy font-bold rounded-xl text-sm transition-all hover:bg-cf-sky/10"
+                  className="px-6 py-3 bg-cf-navy/10 text-cf-navy font-bold rounded-xl text-sm transition-all hover:bg-cf-navy/20 shadow-sm"
                 >
                   Back
                 </button>
               ) : (
                 <Link
                   href="/cart"
-                  className="px-6 py-3 border-2 border-cf-sky/40 text-cf-navy font-bold rounded-xl text-sm transition-all hover:bg-cf-sky/10 text-center"
+                  className="px-6 py-3 bg-cf-navy/10 text-cf-navy font-bold rounded-xl text-sm transition-all hover:bg-cf-navy/20 text-center shadow-sm"
                 >
                   Return to Cart
                 </Link>

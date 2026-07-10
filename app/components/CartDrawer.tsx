@@ -162,7 +162,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <Link
                   href="/cart"
                   onClick={onClose}
-                  className="block w-full text-center text-cf-navy hover:text-cf-green font-semibold py-2 text-sm transition-colors"
+                  className="block w-full text-center bg-[#FAF9F6] border border-[#001A57] text-[#001A57] hover:bg-[#001A57] hover:text-white font-bold py-3.5 rounded-xl transition-all shadow-sm text-sm"
                 >
                   View Full Shopping Cart
                 </Link>

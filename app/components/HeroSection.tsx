@@ -403,8 +403,8 @@ export function HeroSection() {
           </a>
           <a
             href="/about"
-            className="inline-block font-bold py-3.5 px-8 rounded-full text-sm border-2 bg-white/70 hover:bg-white transition-all hover:scale-105 backdrop-blur-sm"
-            style={{ borderColor: "rgba(0,26,87,0.2)", color: "#001A57" }}
+            className="inline-block font-bold py-3.5 px-8 rounded-full text-sm border-2 bg-white hover:bg-[#FAF9F6] transition-all hover:scale-105 shadow-sm"
+            style={{ borderColor: "#001A57", color: "#001A57" }}
           >
             Our Story ↓
           </a>

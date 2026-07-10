@@ -180,6 +180,26 @@ const saveLocalOrders = (orders: Order[]) => {
   localStorage.setItem("cow_fresh_orders", JSON.stringify(orders));
 };
 
+// Helper to load/save mock products to localStorage (SSR-safe)
+const getLocalProducts = (): Product[] => {
+  if (typeof window === "undefined") return STATIC_PRODUCTS;
+  const stored = localStorage.getItem("cow_fresh_products");
+  if (!stored) {
+    localStorage.setItem("cow_fresh_products", JSON.stringify(STATIC_PRODUCTS));
+    return STATIC_PRODUCTS;
+  }
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return STATIC_PRODUCTS;
+  }
+};
+
+const saveLocalProducts = (products: Product[]) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("cow_fresh_products", JSON.stringify(products));
+};
+
 // ============================================
 // DATA FETCHING ACTIONS
 // ============================================
@@ -189,8 +209,7 @@ const saveLocalOrders = (orders: Order[]) => {
  */
 export async function getProducts(): Promise<Product[]> {
   if (!supabase) {
-    console.log("Supabase not configured, returning static products");
-    return STATIC_PRODUCTS;
+    return getLocalProducts();
   }
 
   try {
@@ -205,7 +224,7 @@ export async function getProducts(): Promise<Product[]> {
       .order("sort_order", { ascending: true });
 
     if (prodError) throw prodError;
-    if (!dbProducts || dbProducts.length === 0) return STATIC_PRODUCTS;
+    if (!dbProducts || dbProducts.length === 0) return getLocalProducts();
 
     // Map DB schema names to client interfaces if they differ
     return dbProducts.map((p: any) => ({
@@ -223,7 +242,7 @@ export async function getProducts(): Promise<Product[]> {
     }));
   } catch (error) {
     console.error("Error fetching products from Supabase, falling back to static data:", error);
-    return STATIC_PRODUCTS;
+    return getLocalProducts();
   }
 }
 
@@ -232,7 +251,7 @@ export async function getProducts(): Promise<Product[]> {
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!supabase) {
-    return STATIC_PRODUCTS.find((p) => p.slug === slug) || null;
+    return getLocalProducts().find((p) => p.slug === slug) || null;
   }
 
   try {
@@ -265,7 +284,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     };
   } catch (error) {
     console.error(`Error fetching product ${slug} from Supabase, using static fallback:`, error);
-    return STATIC_PRODUCTS.find((p) => p.slug === slug) || null;
+    return getLocalProducts().find((p) => p.slug === slug) || null;
   }
 }
 
@@ -411,5 +430,142 @@ export async function updateOrderStatus(orderId: string, status: "Pending" | "Ou
       return true;
     }
     return false;
+  }
+}
+
+/**
+ * Creates a new product (Admin control).
+ */
+export async function createProduct(productData: Omit<Product, "id">): Promise<Product> {
+  const newId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+  const newProduct: Product = {
+    id: `prod-${newId}`,
+    ...productData
+  };
+
+  if (!supabase) {
+    const products = getLocalProducts();
+    products.push(newProduct);
+    saveLocalProducts(products);
+    return newProduct;
+  }
+
+  try {
+    const { data: dbProd, error } = await supabase
+      .from("products")
+      .insert({
+        slug: productData.slug,
+        name: productData.name,
+        category: productData.category,
+        description: productData.description,
+        short_tagline: productData.short_tagline,
+        is_hero_product: productData.is_hero_product,
+        nutrition_info: productData.nutrition_info,
+        sort_order: productData.sort_order,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (productData.variants && productData.variants.length > 0) {
+      const vars = productData.variants.map(v => ({
+        product_id: dbProd.id,
+        label: v.label,
+        price: v.price,
+        compare_at_price: v.compare_at_price,
+        sku: v.sku,
+        stock_quantity: v.stock_quantity,
+        is_default: v.is_default
+      }));
+      await supabase.from("product_variants").insert(vars);
+    }
+
+    if (productData.images && productData.images.length > 0) {
+      const imgs = productData.images.map(img => ({
+        product_id: dbProd.id,
+        image_url: img.image_url,
+        alt_text: img.alt_text,
+        is_primary: img.is_primary,
+        image_type: img.image_type
+      }));
+      await supabase.from("product_images").insert(imgs);
+    }
+
+    return {
+      ...newProduct,
+      id: dbProd.id
+    };
+  } catch (err) {
+    console.error("Supabase createProduct failed, saving locally:", err);
+    const products = getLocalProducts();
+    products.push(newProduct);
+    saveLocalProducts(products);
+    return newProduct;
+  }
+}
+
+/**
+ * Updates a product (Admin control).
+ */
+export async function updateProduct(productId: string, productData: Partial<Product>): Promise<boolean> {
+  // Always update locally for fallback consistency
+  const products = getLocalProducts();
+  const idx = products.findIndex(p => p.id === productId);
+  if (idx !== -1) {
+    products[idx] = { ...products[idx], ...productData };
+    saveLocalProducts(products);
+  }
+
+  if (!supabase) {
+    return idx !== -1;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("products")
+      .update({
+        slug: productData.slug,
+        name: productData.name,
+        category: productData.category,
+        description: productData.description,
+        short_tagline: productData.short_tagline,
+        is_hero_product: productData.is_hero_product,
+        nutrition_info: productData.nutrition_info,
+        sort_order: productData.sort_order,
+      })
+      .eq("id", productId);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error(`Supabase updateProduct ${productId} failed, updated locally:`, err);
+    return idx !== -1;
+  }
+}
+
+/**
+ * Deletes a product (Admin control).
+ */
+export async function deleteProduct(productId: string): Promise<boolean> {
+  const products = getLocalProducts();
+  const filtered = products.filter(p => p.id !== productId);
+  saveLocalProducts(filtered);
+
+  if (!supabase) {
+    return true;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", productId);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error(`Supabase deleteProduct ${productId} failed, deleted locally:`, err);
+    return true;
   }
 }

@@ -130,8 +130,8 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                     onClick={() => handleVariantChange(variant)}
                     className={`px-5 py-3 rounded-2xl border-2 transition-all text-sm font-semibold hover:scale-[1.02] active:scale-95 flex items-center justify-between min-w-[110px] ${
                       isSelected
-                        ? "border-cf-green bg-cf-green/5 text-cf-green"
-                        : "border-cf-sky/30 bg-white text-cf-navy hover:border-cf-green"
+                        ? "border-cf-green bg-cf-green text-white"
+                        : "border-cf-sky/30 bg-cf-off-white text-cf-navy hover:border-cf-green hover:bg-cf-sky/20"
                     }`}
                   >
                     <span>{variant.label}</span>
@@ -149,18 +149,20 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               {/* Counter */}
               <div className="flex items-center border-2 border-cf-sky/30 rounded-2xl overflow-hidden bg-white max-w-[150px]">
                 <button
+                  type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-3 text-cf-navy hover:bg-cf-sky/15 transition-colors font-extrabold"
+                  className="px-4 py-3 bg-cf-navy/5 text-cf-navy hover:bg-cf-navy/15 transition-colors font-extrabold"
                   aria-label="Decrease quantity"
                 >
                   -
                 </button>
-                <span className="flex-1 text-center font-bold text-cf-navy min-w-[40px]">
+                <span className="flex-1 text-center font-bold text-cf-navy min-w-[40px] bg-white">
                   {quantity}
                 </span>
                 <button
+                  type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-3 text-cf-navy hover:bg-cf-sky/15 transition-colors font-extrabold"
+                  className="px-4 py-3 bg-cf-navy/5 text-cf-navy hover:bg-cf-navy/15 transition-colors font-extrabold"
                   aria-label="Increase quantity"
                 >
                   +

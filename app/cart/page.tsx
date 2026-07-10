@@ -102,20 +102,20 @@ export default function CartPage() {
                     {/* Controls */}
                     <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
                       {/* Quantity increments */}
-                      <div className="flex items-center border border-cf-sky/40 rounded-xl overflow-hidden bg-cf-off-white shadow-inner">
+                      <div className="flex items-center border border-cf-sky/40 rounded-xl overflow-hidden bg-white shadow-inner">
                         <button
                           onClick={() => updateQuantity(item.id, item.variant, Math.max(1, item.quantity - 1))}
-                          className="px-3 py-2 text-cf-navy hover:bg-cf-sky/20 transition-all font-extrabold text-sm"
+                          className="px-3 py-2 bg-cf-navy/5 text-cf-navy hover:bg-cf-navy/15 transition-all font-extrabold text-sm"
                           aria-label="Decrease quantity"
                         >
                           -
                         </button>
-                        <span className="px-3 text-sm font-bold text-cf-navy min-w-[24px] text-center">
+                        <span className="px-3 text-sm font-bold text-cf-navy min-w-[24px] text-center bg-white">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.variant, item.quantity + 1)}
-                          className="px-3 py-2 text-cf-navy hover:bg-cf-sky/20 transition-all font-extrabold text-sm"
+                          className="px-3 py-2 bg-cf-navy/5 text-cf-navy hover:bg-cf-navy/15 transition-all font-extrabold text-sm"
                           aria-label="Increase quantity"
                         >
                           +
@@ -195,7 +195,7 @@ export default function CartPage() {
               <div className="text-center">
                 <Link
                   href="/products"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-cf-navy hover:text-cf-green transition-colors hover:underline"
+                  className="inline-flex items-center justify-center gap-1.5 text-sm font-bold bg-cf-navy/10 text-cf-navy hover:bg-cf-navy/20 py-2.5 px-6 rounded-xl transition-all shadow-sm"
                 >
                   &larr; Continue Shopping
                 </Link>
