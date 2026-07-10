@@ -16,16 +16,17 @@ export default async function Home() {
   const pillars = [
     {
       icon: "🥛",
-      title: "100% Pure & Natural",
-      body: "Zero preservatives, chemical additives, or milk powders. Just raw, wholesomely processed dairy rich in vitamins and calcium.",
+      title: "Pure & Natural",
+      body: "Zero preservatives or unhealthy chemical additives. Just raw, wholesomely processed dairy rich in vitamins & calcium.",
+      disclaimer: "*A small amount (3 grams per 290 ml) of skimmed milk powder is used in Badami Drink to enhance its texture and taste.",
       bg: "linear-gradient(135deg,rgba(69,197,23,0.12),rgba(69,197,23,0.04))",
       border: "rgba(69,197,23,0.25)",
       iconBg: "rgba(69,197,23,0.15)",
     },
     {
       icon: "🚚",
-      title: "Cold-Chain Delivery",
-      body: "Temperature-controlled transport from farm to your door. Milk stays under 4 °C the entire journey.",
+      title: "Optimum Milk Storage",
+      body: "Our products are stored at temperatures under 4°C to mitigate bacterial growth and ensure ultimate richness in taste till the time of delivery.",
       bg: "linear-gradient(135deg,rgba(146,204,252,0.2),rgba(146,204,252,0.06))",
       border: "rgba(146,204,252,0.4)",
       iconBg: "rgba(146,204,252,0.25)",
@@ -81,6 +82,11 @@ export default async function Home() {
                 </div>
                 <h3 className="font-bold text-xl mb-3" style={{ color: "#001A57" }}>{p.title}</h3>
                 <p className="text-sm leading-relaxed" style={{ color: "#1C1C1E", opacity: 0.65 }}>{p.body}</p>
+                {p.disclaimer && (
+                  <p className="text-[11px] leading-snug mt-3 italic" style={{ color: "#1C1C1E", opacity: 0.5 }}>
+                    {p.disclaimer}
+                  </p>
+                )}
               </div>
             ))}
           </div>
