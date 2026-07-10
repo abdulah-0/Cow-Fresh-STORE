@@ -451,14 +451,16 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={prevStep}
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-cf-navy/10 text-cf-navy font-bold rounded-xl text-sm transition-all hover:bg-cf-navy/20 shadow-sm"
+                  className="px-6 py-3 font-bold rounded-xl text-sm transition-all hover:bg-cf-navy/20 shadow-sm"
+                  style={{ backgroundColor: "#EAE8E3", color: "#001A57" }}
                 >
                   Back
                 </button>
               ) : (
                 <Link
                   href="/cart"
-                  className="px-6 py-3 bg-cf-navy/10 text-cf-navy font-bold rounded-xl text-sm transition-all hover:bg-cf-navy/20 text-center shadow-sm"
+                  className="px-6 py-3 font-bold rounded-xl text-sm transition-all hover:bg-cf-navy/20 text-center shadow-sm"
+                  style={{ backgroundColor: "#EAE8E3", color: "#001A57" }}
                 >
                   Return to Cart
                 </Link>
@@ -468,7 +470,8 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="bg-cf-green hover:bg-cf-green/90 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-sm text-sm"
+                  className="font-bold py-3 px-8 rounded-xl transition-all shadow-sm text-sm hover:opacity-90"
+                  style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
                 >
                   Continue
                 </button>
@@ -477,7 +480,8 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={handlePlaceOrder}
                   disabled={isSubmitting}
-                  className="bg-cf-green hover:bg-cf-green/90 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-md text-sm flex items-center gap-2"
+                  className="font-bold py-3.5 px-8 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 hover:opacity-90"
+                  style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
                 >
                   {isSubmitting ? (
                     <>

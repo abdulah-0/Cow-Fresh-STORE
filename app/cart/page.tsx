@@ -186,7 +186,8 @@ export default function CartPage() {
 
                 <Link
                   href="/checkout"
-                  className="block w-full text-center bg-cf-green hover:bg-cf-green/90 text-white font-bold py-4 rounded-2xl shadow-md transition-all text-base hover:scale-[1.01] hover:shadow-lg"
+                  className="block w-full text-center text-white font-bold py-4 rounded-2xl shadow-md transition-all text-base hover:scale-[1.01] hover:shadow-lg"
+                  style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
                 >
                   Proceed to Checkout
                 </Link>
@@ -195,7 +196,8 @@ export default function CartPage() {
               <div className="text-center">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-1.5 text-sm font-bold bg-cf-navy/10 text-cf-navy hover:bg-cf-navy/20 py-2.5 px-6 rounded-xl transition-all shadow-sm"
+                  className="inline-flex items-center justify-center gap-1.5 text-sm font-bold py-2.5 px-6 rounded-xl transition-all shadow-sm hover:opacity-90"
+                  style={{ backgroundColor: "#EAE8E3", color: "#001A57" }}
                 >
                   &larr; Continue Shopping
                 </Link>

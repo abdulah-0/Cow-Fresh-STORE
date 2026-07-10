@@ -128,11 +128,12 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                   <button
                     key={variant.id}
                     onClick={() => handleVariantChange(variant)}
-                    className={`px-5 py-3 rounded-2xl border-2 transition-all text-sm font-semibold hover:scale-[1.02] active:scale-95 flex items-center justify-between min-w-[110px] ${
-                      isSelected
-                        ? "border-cf-green bg-cf-green text-white"
-                        : "border-cf-sky/30 bg-cf-off-white text-cf-navy hover:border-cf-green hover:bg-cf-sky/20"
-                    }`}
+                    className="px-5 py-3 rounded-2xl border-2 transition-all text-sm font-semibold hover:scale-[1.02] active:scale-95 flex items-center justify-between min-w-[110px]"
+                    style={{
+                      borderColor: isSelected ? "#45C517" : "rgba(146,204,252,0.3)",
+                      backgroundColor: isSelected ? "#45C517" : "#FAF9F6",
+                      color: isSelected ? "#FFFFFF" : "#001A57"
+                    }}
                   >
                     <span>{variant.label}</span>
                   </button>
@@ -151,18 +152,20 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-3 bg-cf-navy/5 text-cf-navy hover:bg-cf-navy/15 transition-colors font-extrabold"
+                  className="px-4 py-3 transition-colors font-extrabold hover:bg-cf-sky/15"
+                  style={{ backgroundColor: "#F1F5F9", color: "#001A57" }}
                   aria-label="Decrease quantity"
                 >
                   -
                 </button>
-                <span className="flex-1 text-center font-bold text-cf-navy min-w-[40px] bg-white">
+                <span className="flex-1 text-center font-bold min-w-[40px] bg-white" style={{ color: "#001A57" }}>
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-3 bg-cf-navy/5 text-cf-navy hover:bg-cf-navy/15 transition-colors font-extrabold"
+                  className="px-4 py-3 transition-colors font-extrabold hover:bg-cf-sky/15"
+                  style={{ backgroundColor: "#F1F5F9", color: "#001A57" }}
                   aria-label="Increase quantity"
                 >
                   +
@@ -173,11 +176,11 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className={`flex-1 font-bold py-4 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 relative overflow-hidden ${
-                  isAdding 
-                    ? "bg-cf-navy text-white" 
-                    : "bg-cf-green hover:bg-cf-green/90 text-white hover:scale-[1.01]"
-                }`}
+                className="flex-1 font-bold py-4 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 relative overflow-hidden hover:scale-[1.01]"
+                style={{
+                  backgroundColor: isAdding ? "#001A57" : "#45C517",
+                  color: "#FFFFFF"
+                }}
               >
                 <AnimatePresence mode="wait">
                   {isAdding ? (
@@ -188,7 +191,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                       exit={{ y: -20, opacity: 0 }}
                       className="flex items-center gap-2"
                     >
-                      <svg className="w-5 h-5 text-cf-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#45C517]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                       </svg>
                       Added to Cart!
@@ -350,11 +353,11 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              className={`font-bold py-2.5 px-6 rounded-full text-xs transition-all flex items-center justify-center gap-1 shadow-sm ${
-                isAdding
-                  ? "bg-cf-navy text-white"
-                  : "bg-cf-green hover:bg-cf-green/90 text-white active:scale-95"
-              }`}
+              className="font-bold py-2.5 px-6 rounded-full text-xs transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95"
+              style={{
+                backgroundColor: isAdding ? "#001A57" : "#45C517",
+                color: "#FFFFFF",
+              }}
             >
               {isAdding ? "Added!" : "Quick Add"}
             </button>
