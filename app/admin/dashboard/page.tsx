@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   getOrders,
   updateOrderStatus,
@@ -16,10 +17,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [emailInput, setEmailInput] = useState<string>("");
-  const [passwordInput, setPasswordInput] = useState<string>("");
-  const [loginError, setLoginError] = useState<string | null>(null);
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -73,9 +72,11 @@ export default function AdminDashboard() {
       const storedEmail = localStorage.getItem("cow_fresh_admin_email");
       if (storedEmail === "cowfreshdairy@gmail.com") {
         setIsLoggedIn(true);
+      } else {
+        router.push("/login");
       }
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -83,34 +84,12 @@ export default function AdminDashboard() {
     }
   }, [isLoggedIn]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError(null);
-    
-    if (emailInput.trim().toLowerCase() !== "cowfreshdairy@gmail.com") {
-      setLoginError("Unauthorized email. Admin access is restricted.");
-      return;
-    }
-    
-    if (passwordInput !== "cowfreshadmin") {
-      setLoginError("Invalid admin passcode.");
-      return;
-    }
-    
-    // Success
-    if (typeof window !== "undefined") {
-      localStorage.setItem("cow_fresh_admin_email", "cowfreshdairy@gmail.com");
-    }
-    setIsLoggedIn(true);
-  };
-
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("cow_fresh_admin_email");
     }
     setIsLoggedIn(false);
-    setEmailInput("");
-    setPasswordInput("");
+    router.push("/login");
   };
 
   // Handle order status change
@@ -288,73 +267,13 @@ export default function AdminDashboard() {
 
   if (!isLoggedIn) {
     return (
-      <main className="container mx-auto px-4 py-16 flex items-center justify-center bg-cf-off-white min-h-[85vh]">
-        <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-cf-sky/15 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-2" style={{ background: "linear-gradient(90deg, #45C517, #001A57)" }} />
-          
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-md mx-auto mb-4"
-              style={{ background: "linear-gradient(135deg,#45C517,#37a012)" }}>
-              <span className="text-white font-bold text-2xl font-heading">C</span>
-            </div>
-            <h1 className="text-2xl font-bold font-heading text-cf-navy">Staff Portal Access</h1>
-            <p className="text-xs text-cf-charcoal/60 mt-1">
-              Admin controls are restricted. Please authenticate.
-            </p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            {loginError && (
-              <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-xs font-semibold text-center">
-                ⚠️ {loginError}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-bold text-cf-navy uppercase tracking-wider mb-1.5">
-                Staff Email Address
-              </label>
-              <input
-                type="email"
-                required
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full px-4 py-3 bg-cf-off-white border border-cf-sky/30 rounded-xl text-sm text-cf-navy placeholder-cf-charcoal/30 focus:outline-none focus:ring-2 focus:ring-cf-green transition-all"
-                placeholder="e.g. name@cowfresh.pk"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-cf-navy uppercase tracking-wider mb-1.5">
-                Security Passcode
-              </label>
-              <input
-                type="password"
-                required
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full px-4 py-3 bg-cf-off-white border border-cf-sky/30 rounded-xl text-sm text-cf-navy placeholder-cf-charcoal/30 focus:outline-none focus:ring-2 focus:ring-cf-green transition-all"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm hover:scale-[1.01]"
-              style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
-            >
-              Sign In to Dashboard
-            </button>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-cf-sky/15 text-center space-y-3">
-            <div className="bg-cf-sky/10 border border-cf-sky/25 p-3.5 rounded-2xl text-[10px] text-cf-navy leading-relaxed text-left">
-              <strong>Access Requirement:</strong> Use email <code className="bg-white px-1 py-0.5 rounded border text-xs font-bold select-all">cowfreshdairy@gmail.com</code> and passcode <code className="bg-white px-1 py-0.5 rounded border text-xs font-bold select-all">cowfreshadmin</code>.
-            </div>
-            <Link href="/" className="inline-block text-xs font-semibold text-cf-navy hover:text-cf-green hover:underline">
-              &larr; Return to Public Store
-            </Link>
-          </div>
+      <main className="container mx-auto px-4 py-20 text-center bg-cf-off-white min-h-screen">
+        <div className="flex flex-col items-center justify-center space-y-4 py-20">
+          <svg className="animate-spin h-10 w-10 text-cf-green" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <p className="text-cf-navy font-bold text-sm">Redirecting to secure login portal...</p>
         </div>
       </main>
     );
