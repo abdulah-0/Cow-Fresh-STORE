@@ -10,7 +10,8 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  Product
+  Product,
+  ProductVariant
 } from "@/app/lib/db";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,6 +33,7 @@ export default function AdminDashboard() {
   // Product editor modal state
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [variantsList, setVariantsList] = useState<ProductVariant[]>([]);
   
   // Form fields
   const [name, setName] = useState("");
@@ -110,6 +112,49 @@ export default function AdminDashboard() {
     }
   };
 
+  // Variant modifiers
+  const addVariantField = () => {
+    setVariantsList(prev => [
+      ...prev,
+      {
+        id: `var-${Math.random().toString(36).substring(2, 10)}`,
+        label: "",
+        price: 0,
+        compare_at_price: undefined,
+        sku: `SKU-${slug.toUpperCase() || "NEW"}-${prev.length + 1}`,
+        stock_quantity: 100,
+        is_default: false
+      }
+    ]);
+  };
+
+  const updateVariantField = (id: string, field: keyof ProductVariant, value: any) => {
+    setVariantsList(prev =>
+      prev.map(v => {
+        if (v.id !== id) {
+          // If setting is_default to true, make others false
+          if (field === "is_default" && value === true) {
+            return { ...v, is_default: false };
+          }
+          return v;
+        }
+        return { ...v, [field]: value };
+      })
+    );
+  };
+
+  const removeVariantField = (id: string) => {
+    if (variantsList.length <= 1) return;
+    setVariantsList(prev => {
+      const filtered = prev.filter(v => v.id !== id);
+      // If we deleted the default, set the first remaining to default
+      if (prev.find(v => v.id === id)?.is_default && filtered.length > 0) {
+        filtered[0] = { ...filtered[0], is_default: true };
+      }
+      return filtered;
+    });
+  };
+
   // Open modal for new product
   const openAddProductModal = () => {
     setEditingProduct(null);
@@ -119,9 +164,9 @@ export default function AdminDashboard() {
     setShortTagline("");
     setDescription("");
     setImageUrl("");
-    setPrice("");
+    setPrice("0");
     setCompareAtPrice("");
-    setStockQuantity("");
+    setStockQuantity("100");
     setSku("");
     setCalories("");
     setProtein("");
@@ -130,6 +175,17 @@ export default function AdminDashboard() {
     setCalcium("");
     setIsHero(false);
     setSortOrder("1");
+    setVariantsList([
+      {
+        id: `var-${Math.random().toString(36).substring(2, 10)}`,
+        label: "Standard",
+        price: 0,
+        compare_at_price: undefined,
+        sku: "",
+        stock_quantity: 100,
+        is_default: true
+      }
+    ]);
     setIsProductModalOpen(true);
   };
 
@@ -154,6 +210,17 @@ export default function AdminDashboard() {
     setCalcium(prod.nutrition_info.calcium || "");
     setIsHero(prod.is_hero_product);
     setSortOrder(String(prod.sort_order));
+    setVariantsList(prod.variants && prod.variants.length > 0 ? JSON.parse(JSON.stringify(prod.variants)) : [
+      {
+        id: `var-${Math.random().toString(36).substring(2, 10)}`,
+        label: "Standard",
+        price: defVariant ? defVariant.price : 0,
+        compare_at_price: defVariant?.compare_at_price || undefined,
+        sku: defVariant ? defVariant.sku : "",
+        stock_quantity: defVariant ? defVariant.stock_quantity : 100,
+        is_default: true
+      }
+    ]);
     setIsProductModalOpen(true);
   };
 
@@ -174,9 +241,33 @@ export default function AdminDashboard() {
   // Handle product form submission
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !slug || !price) {
-      alert("Please fill in required fields (Name, Slug, Price).");
+    if (!name || !slug) {
+      alert("Please fill in required fields (Name, Slug).");
       return;
+    }
+
+    if (variantsList.length === 0) {
+      alert("Please add at least one product variant.");
+      return;
+    }
+
+    // Validate each variant
+    for (const v of variantsList) {
+      if (!v.label.trim()) {
+        alert("Each variant must have a size/label (e.g. '290 ml').");
+        return;
+      }
+      if (Number(v.price) <= 0) {
+        alert(`Variant '${v.label}' must have a valid price greater than 0.`);
+        return;
+      }
+    }
+
+    // Enforce default variant
+    let finalVariants = [...variantsList];
+    const hasDefault = finalVariants.some(v => v.is_default);
+    if (!hasDefault && finalVariants.length > 0) {
+      finalVariants[0] = { ...finalVariants[0], is_default: true };
     }
 
     const payload: Omit<Product, "id"> = {
@@ -194,17 +285,15 @@ export default function AdminDashboard() {
         fat: fat || undefined,
         calcium: calcium || undefined,
       },
-      variants: [
-        {
-          id: editingProduct?.variants[0]?.id || `var-${Math.random().toString(36).substring(2, 10)}`,
-          label: editingProduct?.variants[0]?.label || "Standard",
-          price: Number(price),
-          compare_at_price: compareAtPrice ? Number(compareAtPrice) : undefined,
-          sku: sku || `SKU-${slug.toUpperCase()}`,
-          stock_quantity: Number(stockQuantity) || 100,
-          is_default: true
-        }
-      ],
+      variants: finalVariants.map(v => ({
+        id: v.id,
+        label: v.label,
+        price: Number(v.price),
+        compare_at_price: v.compare_at_price ? Number(v.compare_at_price) : undefined,
+        sku: v.sku || `SKU-${slug.toUpperCase()}-${v.label.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}`,
+        stock_quantity: Number(v.stock_quantity) || 0,
+        is_default: v.is_default
+      })),
       images: [
         {
           id: editingProduct?.images[0]?.id || `img-${Math.random().toString(36).substring(2, 10)}`,
@@ -567,6 +656,11 @@ export default function AdminDashboard() {
                               <p className="text-[10px] text-cf-charcoal/50 mt-0.5">
                                 SKU: {defVar?.sku} · Stock: {defVar?.stock_quantity}
                               </p>
+                              {prod.variants.length > 1 && (
+                                <span className="inline-block text-[9px] bg-cf-navy/10 text-cf-navy font-bold px-2 py-0.5 rounded-full mt-1.5 uppercase tracking-wide">
+                                  {prod.variants.length} Size Options
+                                </span>
+                              )}
                             </td>
                             <td className="p-4 font-mono font-bold text-cf-navy">
                               {prod.sort_order}
@@ -737,51 +831,118 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Section 2: Pricing & Inventory */}
+                {/* Section 2: Pricing & Size Variants */}
                 <div className="space-y-4 pt-4 border-t border-cf-sky/10">
-                  <h4 className="font-bold text-cf-green uppercase tracking-wider text-[10px]">2. Pricing & Variants (Default Standard)</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-cf-navy font-bold mb-1">Price (Rs) *</label>
-                      <input
-                        type="number"
-                        required
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-cf-sky/20 bg-cf-off-white/40 focus:outline-none focus:ring-2 focus:ring-cf-green font-semibold"
-                        placeholder="199"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-cf-navy font-bold mb-1">Compare At (Rs)</label>
-                      <input
-                        type="number"
-                        value={compareAtPrice}
-                        onChange={(e) => setCompareAtPrice(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-cf-sky/20 bg-cf-off-white/40 focus:outline-none focus:ring-2 focus:ring-cf-green font-semibold"
-                        placeholder="250"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-cf-navy font-bold mb-1">Stock Quantity</label>
-                      <input
-                        type="number"
-                        value={stockQuantity}
-                        onChange={(e) => setStockQuantity(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-cf-sky/20 bg-cf-off-white/40 focus:outline-none focus:ring-2 focus:ring-cf-green font-semibold"
-                        placeholder="50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-cf-navy font-bold mb-1">SKU</label>
-                      <input
-                        type="text"
-                        value={sku}
-                        onChange={(e) => setSku(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-cf-sky/20 bg-cf-off-white/40 focus:outline-none focus:ring-2 focus:ring-cf-green font-mono"
-                        placeholder="COW-ALM-500"
-                      />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-cf-green uppercase tracking-wider text-[10px]">2. Pricing & Size Variants</h4>
+                    <button
+                      type="button"
+                      onClick={addVariantField}
+                      className="bg-cf-navy hover:bg-cf-navy-dark text-white font-bold py-1.5 px-3 rounded-xl text-[10px] transition-all flex items-center gap-1 shadow-sm"
+                    >
+                      ➕ Add Size/Pack Variant
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {variantsList.map((variant, idx) => (
+                      <div
+                        key={variant.id || idx}
+                        className="bg-cf-off-white/50 border border-cf-sky/15 rounded-2xl p-4 space-y-3 relative text-xs"
+                      >
+                        <div className="flex items-center justify-between border-b border-cf-sky/10 pb-2">
+                          <span className="font-bold text-cf-navy text-[10px] uppercase flex items-center gap-2">
+                            Variant #{idx + 1} 
+                            {variant.is_default ? (
+                              <span className="text-[9px] bg-cf-green text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">Primary Default</span>
+                            ) : (
+                              <span className="text-[9px] bg-cf-navy/10 text-cf-navy/60 font-bold px-1.5 py-0.5 rounded-full uppercase">Secondary Option</span>
+                            )}
+                          </span>
+                          {variantsList.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeVariantField(variant.id)}
+                              className="text-red-500 hover:text-red-700 font-bold hover:underline text-[10px]"
+                            >
+                              ✕ Remove Variant
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                          <div>
+                            <label className="block text-cf-navy font-bold mb-1 text-[9px] uppercase">Size / Label *</label>
+                            <input
+                              type="text"
+                              required
+                              value={variant.label}
+                              onChange={(e) => updateVariantField(variant.id, "label", e.target.value)}
+                              className="w-full p-2.5 rounded-lg border border-cf-sky/25 bg-white focus:outline-none focus:ring-1 focus:ring-cf-green font-semibold"
+                              placeholder="e.g. 500 ml, 1 Litre"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-cf-navy font-bold mb-1 text-[9px] uppercase">Price (Rs) *</label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              value={variant.price || ""}
+                              onChange={(e) => updateVariantField(variant.id, "price", Number(e.target.value))}
+                              className="w-full p-2.5 rounded-lg border border-cf-sky/25 bg-white focus:outline-none focus:ring-1 focus:ring-cf-green font-semibold"
+                              placeholder="199"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-cf-navy font-bold mb-1 text-[9px] uppercase">Compare At (Rs)</label>
+                            <input
+                              type="number"
+                              value={variant.compare_at_price || ""}
+                              onChange={(e) => updateVariantField(variant.id, "compare_at_price", e.target.value ? Number(e.target.value) : undefined)}
+                              className="w-full p-2.5 rounded-lg border border-cf-sky/25 bg-white focus:outline-none focus:ring-1 focus:ring-cf-green font-semibold"
+                              placeholder="250"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-cf-navy font-bold mb-1 text-[9px] uppercase">Stock Qty</label>
+                            <input
+                              type="number"
+                              value={variant.stock_quantity ?? 100}
+                              onChange={(e) => updateVariantField(variant.id, "stock_quantity", Number(e.target.value))}
+                              className="w-full p-2.5 rounded-lg border border-cf-sky/25 bg-white focus:outline-none focus:ring-1 focus:ring-cf-green font-semibold"
+                              placeholder="100"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-cf-navy font-bold mb-1 text-[9px] uppercase">SKU Code</label>
+                            <input
+                              type="text"
+                              value={variant.sku}
+                              onChange={(e) => updateVariantField(variant.id, "sku", e.target.value)}
+                              className="w-full p-2.5 rounded-lg border border-cf-sky/25 bg-white focus:outline-none focus:ring-1 focus:ring-cf-green font-mono"
+                              placeholder="COW-MILK-500"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1.5 border-t border-cf-sky/10">
+                          <label className="flex items-center gap-1.5 font-bold cursor-pointer text-cf-navy select-none text-[10px]">
+                            <input
+                              type="checkbox"
+                              checked={variant.is_default}
+                              onChange={(e) => updateVariantField(variant.id, "is_default", e.target.checked)}
+                              className="w-3.5 h-3.5 rounded text-cf-green border-cf-sky/30 focus:ring-cf-green focus:ring-offset-0"
+                            />
+                            Make this the primary default size for display
+                          </label>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
