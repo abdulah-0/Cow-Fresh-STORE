@@ -537,6 +537,39 @@ export async function updateProduct(productId: string, productData: Partial<Prod
       .eq("id", productId);
 
     if (error) throw error;
+
+    // Update variants in Supabase
+    if (productData.variants) {
+      await supabase.from("product_variants").delete().eq("product_id", productId);
+      if (productData.variants.length > 0) {
+        const vars = productData.variants.map(v => ({
+          product_id: productId,
+          label: v.label,
+          price: v.price,
+          compare_at_price: v.compare_at_price,
+          sku: v.sku,
+          stock_quantity: v.stock_quantity,
+          is_default: v.is_default
+        }));
+        await supabase.from("product_variants").insert(vars);
+      }
+    }
+
+    // Update images in Supabase
+    if (productData.images) {
+      await supabase.from("product_images").delete().eq("product_id", productId);
+      if (productData.images.length > 0) {
+        const imgs = productData.images.map(img => ({
+          product_id: productId,
+          image_url: img.image_url,
+          alt_text: img.alt_text,
+          is_primary: img.is_primary,
+          image_type: img.image_type
+        }));
+        await supabase.from("product_images").insert(imgs);
+      }
+    }
+
     return true;
   } catch (err) {
     console.error(`Supabase updateProduct ${productId} failed, updated locally:`, err);

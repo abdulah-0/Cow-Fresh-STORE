@@ -191,26 +191,27 @@ export default function AdminDashboard() {
 
   // Open modal for editing product
   const openEditProductModal = (prod: Product) => {
-    const defVariant = prod.variants.find(v => v.is_default) || prod.variants[0];
+    const variants = prod.variants || [];
+    const defVariant = variants.find(v => v.is_default) || variants[0];
     setEditingProduct(prod);
-    setName(prod.name);
-    setSlug(prod.slug);
-    setCategory(prod.category);
-    setShortTagline(prod.short_tagline);
-    setDescription(prod.description);
-    setImageUrl(prod.images[0]?.image_url || "");
+    setName(prod.name || "");
+    setSlug(prod.slug || "");
+    setCategory(prod.category || "milk_bottle");
+    setShortTagline(prod.short_tagline || "");
+    setDescription(prod.description || "");
+    setImageUrl(prod.images?.[0]?.image_url || "");
     setPrice(defVariant ? String(defVariant.price) : "");
     setCompareAtPrice(defVariant?.compare_at_price ? String(defVariant.compare_at_price) : "");
     setStockQuantity(defVariant ? String(defVariant.stock_quantity) : "");
     setSku(defVariant ? defVariant.sku : "");
-    setCalories(prod.nutrition_info.calories || "");
-    setProtein(prod.nutrition_info.protein || "");
-    setCarbs(prod.nutrition_info.carbs || "");
-    setFat(prod.nutrition_info.fat || "");
-    setCalcium(prod.nutrition_info.calcium || "");
-    setIsHero(prod.is_hero_product);
-    setSortOrder(String(prod.sort_order));
-    setVariantsList(prod.variants && prod.variants.length > 0 ? JSON.parse(JSON.stringify(prod.variants)) : [
+    setCalories(prod.nutrition_info?.calories || "");
+    setProtein(prod.nutrition_info?.protein || "");
+    setCarbs(prod.nutrition_info?.carbs || "");
+    setFat(prod.nutrition_info?.fat || "");
+    setCalcium(prod.nutrition_info?.calcium || "");
+    setIsHero(!!prod.is_hero_product);
+    setSortOrder(String(prod.sort_order || 1));
+    setVariantsList(variants.length > 0 ? JSON.parse(JSON.stringify(variants)) : [
       {
         id: `var-${Math.random().toString(36).substring(2, 10)}`,
         label: "Standard",
