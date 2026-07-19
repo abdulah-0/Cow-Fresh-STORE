@@ -131,7 +131,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                     className="px-5 py-3 rounded-2xl border-2 transition-all text-sm font-semibold hover:scale-[1.02] active:scale-95 flex items-center justify-between min-w-[110px]"
                     style={{
                       borderColor: isSelected ? "#45C517" : "rgba(146,204,252,0.3)",
-                      backgroundColor: isSelected ? "#45C517" : "#FAF9F6",
+                      backgroundColor: isSelected ? "#45C517" : "var(--cf-off-white)",
                       color: isSelected ? "#FFFFFF" : "#001A57"
                     }}
                   >

@@ -42,7 +42,7 @@ export default async function Home() {
   ];
 
   return (
-    <main className="overflow-hidden" style={{ background: "#FAF9F6" }}>
+    <main className="overflow-hidden" style={{ background: "var(--cf-off-white)" }}>
 
       {/* ── HERO ── */}
       <HeroSection />
@@ -94,7 +94,7 @@ export default async function Home() {
       </section>
 
       {/* ── FEATURED PRODUCTS ── */}
-      <section className="py-20 border-t border-b" style={{ background: "#fff", borderColor: "rgba(146,204,252,0.2)" }}>
+      <section className="py-20 border-t border-b" style={{ background: "var(--cf-white)", borderColor: "rgba(146,204,252,0.2)" }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
@@ -121,13 +121,13 @@ export default async function Home() {
               return (
                 <Link key={product.id} href={`/products/${product.slug}`} className="group flex flex-col">
                   <div className="rounded-3xl overflow-hidden border transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1 flex flex-col h-full"
-                    style={{ borderColor: "rgba(146,204,252,0.2)", background: "#FAF9F6" }}>
+                    style={{ borderColor: "rgba(146,204,252,0.2)", background: "var(--cf-off-white)" }}>
 
                     {/* Image area with sky gradient */}
                     <div 
                       id={product.slug === "almond-milk" ? "product-image-almond-milk" : undefined}
                       className="relative aspect-square flex items-center justify-center overflow-hidden p-4"
-                      style={{ background: "linear-gradient(160deg,rgba(146,204,252,0.22) 0%,#fff 70%)" }}>
+                      style={{ background: "linear-gradient(160deg,rgba(146,204,252,0.22) 0%,var(--cf-white) 70%)" }}>
                       <Image src={img} alt={product.name} fill
                         className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width:768px) 50vw, 20vw" />
@@ -261,7 +261,7 @@ export default async function Home() {
       </section>
 
       {/* ── MINI CTA STRIP ── */}
-      <section className="py-14" style={{ background: "#FAF9F6" }}>
+      <section className="py-14" style={{ background: "var(--cf-off-white)" }}>
         <div className="container mx-auto px-4 text-center space-y-4">
           <h2 className="text-2xl md:text-3xl font-extrabold font-heading" style={{ color: "#001A57" }}>
             Ready for farm-fresh dairy?

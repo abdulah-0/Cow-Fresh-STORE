@@ -291,7 +291,7 @@ export function HeroSection() {
       className="relative w-full h-[90vh] min-h-[600px] md:h-[95vh] md:min-h-[700px] overflow-hidden"
     >
       {/* Background layers */}
-      <div className="absolute inset-0" style={{ background: "#FAF9F6", zIndex: 0 }} />
+      <div className="absolute inset-0" style={{ background: "var(--cf-off-white)", zIndex: 0 }} />
 
       {/* Sky-blue radial */}
       <motion.div
@@ -300,7 +300,7 @@ export function HeroSection() {
       >
         <div
           className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 90% 70% at 50% 38%, rgba(146, 204, 252, 0.42) 0%, rgba(250, 249, 246, 0) 72%)" }}
+          style={{ background: "radial-gradient(ellipse 90% 70% at 50% 38%, rgba(146, 204, 252, 0.42) 0%, rgba(var(--cf-off-white-rgb), 0) 72%)" }}
         />
       </motion.div>
 
@@ -403,7 +403,7 @@ export function HeroSection() {
           </a>
           <a
             href="/about"
-            className="inline-block font-bold py-3.5 px-8 rounded-full text-sm border-2 bg-white hover:bg-[#FAF9F6] transition-all hover:scale-105 shadow-sm"
+            className="inline-block font-bold py-3.5 px-8 rounded-full text-sm border-2 bg-white hover:bg-cf-off-white transition-all hover:scale-105 shadow-sm"
             style={{ borderColor: "#001A57", color: "#001A57" }}
           >
             Our Story ↓
@@ -414,7 +414,7 @@ export function HeroSection() {
       {/* Bottom fade divider */}
       <div
         className="absolute bottom-0 left-0 right-0 h-16 z-50 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, transparent, rgba(250,249,246,0.9))" }}
+        style={{ background: "linear-gradient(to bottom, transparent, rgba(var(--cf-off-white-rgb),0.9))" }}
       />
 
       {/* ── FLYING HERO BOTTLE (Fixed Overlay, active after coordinates measurement) ── */}

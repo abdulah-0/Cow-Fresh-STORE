@@ -8,6 +8,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        'white': 'var(--cf-white)',
         'cf-green': 'var(--cf-green)',
         'cf-navy': 'var(--cf-navy)',
         'cf-sky': 'var(--cf-sky)',

@@ -8,9 +8,11 @@
   --cf-navy-dark: #000f33;
   --cf-sky: #92CCFC;
   --cf-sky-pastel: #f0f7ff;
-  --cf-off-white: #FAF9F6; /* Soft warm dairy cream tone */
+  --cf-off-white: #EBF5F0; /* Soft pasture sage mint green tint */
+  --cf-off-white-rgb: 235, 245, 240;
   --cf-charcoal: #1C1C1E;
-  --cf-white: #FFFFFF;
+  --cf-white: #F4FAF7; /* Very light tinted mint white */
+  --cf-white-rgb: 244, 250, 247;
   
   /* System font fallbacks */
   --font-geist-sans: "Poppins", sans-serif;
@@ -40,11 +42,11 @@ body {
 
 /* Premium Gradient Utility Classes */
 .bg-dairy-radial-sky {
-  background: radial-gradient(circle at center, rgba(146, 204, 252, 0.22) 0%, rgba(250, 249, 246, 0) 75%);
+  background: radial-gradient(circle at center, rgba(146, 204, 252, 0.22) 0%, rgba(var(--cf-off-white-rgb), 0) 75%);
 }
 
 .bg-dairy-radial-green {
-  background: radial-gradient(circle at center, rgba(69, 197, 23, 0.08) 0%, rgba(250, 249, 246, 0) 70%);
+  background: radial-gradient(circle at center, rgba(69, 197, 23, 0.08) 0%, rgba(var(--cf-off-white-rgb), 0) 70%);
 }
 
 .bg-dairy-gradient-navy {
@@ -56,12 +58,12 @@ body {
 }
 
 .bg-dairy-gradient-mixed {
-  background: linear-gradient(135deg, rgba(146, 204, 252, 0.15) 0%, rgba(69, 197, 23, 0.05) 50%, rgba(250, 249, 246, 0) 100%);
+  background: linear-gradient(135deg, rgba(146, 204, 252, 0.15) 0%, rgba(69, 197, 23, 0.05) 50%, rgba(var(--cf-off-white-rgb), 0) 100%);
 }
 
 /* Glassmorphism utility */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(var(--cf-white-rgb), 0.7);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(146, 204, 252, 0.25);
 }
