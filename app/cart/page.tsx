@@ -186,8 +186,7 @@ export default function CartPage() {
 
                 <Link
                   href="/checkout"
-                  className="block w-full text-center text-white font-bold py-4 rounded-2xl shadow-md transition-all text-base hover:scale-[1.01] hover:shadow-lg"
-                  style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
+                  className="block w-full text-center font-bold py-4 rounded-2xl bg-[#12201A] text-[#FAF6EF] hover:bg-[#B5652E] shadow-md transition-all duration-300 text-base hover:scale-[1.01] hover:shadow-lg"
                 >
                   Proceed to Checkout
                 </Link>

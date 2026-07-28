@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
 import { Header } from "@/app/components/Header";
@@ -25,6 +26,11 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Cow Fresh - Farm Fresh Dairy Products",
   description: "Direct-to-consumer dairy e-commerce store selling almond milk, lassi, milk packets, yogurt packets, and desi ghee.",
+  icons: {
+    icon: "/images/cowfresh_logo.png",
+    shortcut: "/images/cowfresh_logo.png",
+    apple: "/images/cowfresh_logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -41,9 +47,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-[#C9A876]/15">
                 {/* Brand Column */}
                 <div className="md:col-span-2 space-y-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-[#B5652E] flex items-center justify-center font-serif font-bold text-lg text-[#FAF6EF]">
-                      C
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 flex-shrink-0">
+                      <Image
+                        src="/images/cowfresh_logo.png"
+                        alt="Cow Fresh Logo"
+                        fill
+                        className="object-contain"
+                      />
                     </div>
                     <span className="font-serif font-semibold text-2xl tracking-tight text-[#FAF6EF]">
                       Cow <span className="italic text-[#B5652E]">Fresh</span>

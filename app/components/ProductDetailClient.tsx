@@ -120,7 +120,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
 
           {/* Variant Selector */}
           <div className="space-y-3">
-            <h3 className="font-bold text-cf-navy text-sm uppercase tracking-wider">Select Size</h3>
+            <h3 className="font-serif font-bold text-[#12201A] text-sm uppercase tracking-wider">Select Size</h3>
             <div className="flex flex-wrap gap-3">
               {product.variants.map((variant) => {
                 const isSelected = selectedVariant.id === variant.id;
@@ -128,12 +128,11 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                   <button
                     key={variant.id}
                     onClick={() => handleVariantChange(variant)}
-                    className="px-5 py-3 rounded-2xl border-2 transition-all text-sm font-semibold hover:scale-[1.02] active:scale-95 flex items-center justify-between min-w-[110px]"
-                    style={{
-                      borderColor: isSelected ? "#45C517" : "rgba(146,204,252,0.3)",
-                      backgroundColor: isSelected ? "#45C517" : "var(--cf-off-white)",
-                      color: isSelected ? "#FFFFFF" : "#001A57"
-                    }}
+                    className={`px-5 py-3 rounded-2xl border-2 transition-all text-sm font-sans font-semibold hover:scale-[1.02] active:scale-95 flex items-center justify-between min-w-[110px] ${
+                      isSelected
+                        ? "bg-[#12201A] text-[#FAF6EF] border-[#12201A] shadow-md"
+                        : "bg-[#FAF6EF] text-[#12201A] border-[#C9A876]/30 hover:border-[#B5652E]"
+                    }`}
                   >
                     <span>{variant.label}</span>
                   </button>
@@ -144,28 +143,26 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
 
           {/* Quantity Selector and Cart Action */}
           <div className="space-y-3 pt-2">
-            <h3 className="font-bold text-cf-navy text-sm uppercase tracking-wider">Quantity</h3>
+            <h3 className="font-serif font-bold text-[#12201A] text-sm uppercase tracking-wider">Quantity</h3>
             <div className="flex flex-col sm:flex-row gap-4">
               
               {/* Counter */}
-              <div className="flex items-center border-2 border-cf-sky/30 rounded-2xl overflow-hidden bg-white max-w-[150px]">
+              <div className="flex items-center border-2 border-[#C9A876]/30 rounded-2xl overflow-hidden bg-white max-w-[150px]">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-3 transition-colors font-extrabold hover:bg-cf-sky/15"
-                  style={{ backgroundColor: "#F1F5F9", color: "#001A57" }}
+                  className="px-4 py-3 transition-colors font-extrabold hover:bg-[#DCEEF2]/40 text-[#12201A]"
                   aria-label="Decrease quantity"
                 >
                   -
                 </button>
-                <span className="flex-1 text-center font-bold min-w-[40px] bg-white" style={{ color: "#001A57" }}>
+                <span className="flex-1 text-center font-bold min-w-[40px] bg-white text-[#12201A]">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-3 transition-colors font-extrabold hover:bg-cf-sky/15"
-                  style={{ backgroundColor: "#F1F5F9", color: "#001A57" }}
+                  className="px-4 py-3 transition-colors font-extrabold hover:bg-[#DCEEF2]/40 text-[#12201A]"
                   aria-label="Increase quantity"
                 >
                   +
@@ -176,11 +173,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className="flex-1 font-bold py-4 px-8 rounded-2xl transition-all shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 relative overflow-hidden hover:scale-[1.01]"
-                style={{
-                  backgroundColor: isAdding ? "#001A57" : "#45C517",
-                  color: "#FFFFFF"
-                }}
+                className="flex-1 font-sans font-semibold py-4 px-8 rounded-2xl transition-all duration-300 shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2 relative overflow-hidden bg-[#12201A] text-[#FAF6EF] hover:bg-[#B5652E] hover:scale-[1.01]"
               >
                 <AnimatePresence mode="wait">
                   {isAdding ? (
@@ -189,9 +182,9 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: -20, opacity: 0 }}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-[#FAF6EF]"
                     >
-                      <svg className="w-5 h-5 text-[#45C517]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#EFE3C9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                       </svg>
                       Added to Cart!
@@ -202,7 +195,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: 20, opacity: 0 }}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-[#FAF6EF]"
                     >
                       Add to Cart &bull; Rs {selectedVariant.price * quantity}
                     </motion.span>
@@ -214,9 +207,9 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
           </div>
 
           {/* Description */}
-          <div className="space-y-2 pt-4 border-t border-cf-sky/15">
-            <h3 className="font-bold text-cf-navy text-sm uppercase tracking-wider">Description</h3>
-            <p className="text-cf-charcoal/70 text-sm leading-relaxed">
+          <div className="space-y-2 pt-4 border-t border-[#C9A876]/20">
+            <h3 className="font-serif font-bold text-[#12201A] text-sm uppercase tracking-wider">Description</h3>
+            <p className="text-[#1F3B2C]/80 text-sm font-sans leading-relaxed">
               {product.description}
             </p>
           </div>
@@ -227,57 +220,57 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
       {/* Product Sourcing / Nutrition Block */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
         {/* Sourcing Info Card */}
-        <div className="lg:col-span-2 bg-white rounded-3xl p-6 md:p-8 border border-cf-sky/15 shadow-sm space-y-4">
-          <h3 className="text-xl font-bold font-heading text-cf-navy">Why Choose This Product?</h3>
+        <div className="lg:col-span-2 bg-[#FAF6EF] rounded-3xl p-6 md:p-8 border border-[#C9A876]/30 shadow-sm space-y-4">
+          <h3 className="text-xl font-bold font-serif text-[#12201A]">Why Choose This Product?</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex gap-3">
               <span className="text-2xl">🌿</span>
               <div>
-                <h4 className="font-bold text-sm text-cf-navy">100% Organic Origins</h4>
-                <p className="text-xs text-cf-charcoal/60 mt-0.5">Sourced from pasture-raised cows fed purely on organic forage, ensuring rich nutritional density.</p>
+                <h4 className="font-serif font-bold text-sm text-[#12201A]">100% Organic Origins</h4>
+                <p className="text-xs font-sans text-[#1F3B2C]/70 mt-0.5">Sourced from pasture-raised cows fed purely on organic forage, ensuring rich nutritional density.</p>
               </div>
             </div>
             <div className="flex gap-3">
               <span className="text-2xl">🧪</span>
               <div>
-                <h4 className="font-bold text-sm text-cf-navy">Tested for Purity</h4>
-                <p className="text-xs text-cf-charcoal/60 mt-0.5">Undergoes stringent lab screening at farm gates for hormones, heavy metals, and adulterants.</p>
+                <h4 className="font-serif font-bold text-sm text-[#12201A]">Tested for Purity</h4>
+                <p className="text-xs font-sans text-[#1F3B2C]/70 mt-0.5">Undergoes stringent lab screening at farm gates for hormones, heavy metals, and adulterants.</p>
               </div>
             </div>
             <div className="flex gap-3">
               <span className="text-2xl">❄️</span>
               <div>
-                <h4 className="font-bold text-sm text-cf-navy">Unbroken Cold Chain</h4>
-                <p className="text-xs text-cf-charcoal/60 mt-0.5">Maintained at optimal refrigeration levels from farm gate to dispatch to lock in nutrient counts.</p>
+                <h4 className="font-serif font-bold text-sm text-[#12201A]">Unbroken Cold Chain</h4>
+                <p className="text-xs font-sans text-[#1F3B2C]/70 mt-0.5">Maintained at optimal refrigeration levels from farm gate to dispatch to lock in nutrient counts.</p>
               </div>
             </div>
             <div className="flex gap-3">
               <span className="text-2xl">♻️</span>
               <div>
-                <h4 className="font-bold text-sm text-cf-navy">Eco-friendly Packaging</h4>
-                <p className="text-xs text-cf-charcoal/60 mt-0.5">Sealed in clean, recyclable materials that preserve taste and integrity without plastic toxins.</p>
+                <h4 className="font-serif font-bold text-sm text-[#12201A]">Eco-friendly Packaging</h4>
+                <p className="text-xs font-sans text-[#1F3B2C]/70 mt-0.5">Sealed in clean, recyclable materials that preserve taste and integrity without plastic toxins.</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Nutrition Info Card */}
-        <div className="bg-cf-navy text-white rounded-3xl p-6 md:p-8 shadow-md flex flex-col justify-between">
+        {/* Nutrition Info Card (Black / Dark Text on Light Ivory Card) */}
+        <div className="bg-[#FAF6EF] text-[#12201A] rounded-3xl p-6 md:p-8 border border-[#C9A876]/40 shadow-sm flex flex-col justify-between">
           <div>
-            <h3 className="text-xl font-bold font-heading text-white mb-4">Nutritional Value</h3>
-            <p className="text-xs text-cf-sky/80 mb-6">Per serving representation. Natural dairy value counts may vary slightly.</p>
+            <h3 className="text-xl font-serif font-bold text-[#12201A] mb-2">Nutritional Value</h3>
+            <p className="text-xs font-sans text-[#1F3B2C]/70 mb-6">Per serving representation. Natural dairy value counts may vary slightly.</p>
             
             <div className="space-y-3">
               {Object.entries(product.nutrition_info).map(([key, value]) => (
-                <div key={key} className="flex justify-between items-center py-2 border-b border-white/10 text-sm">
-                  <span className="capitalize text-cf-sky/90 font-medium">{key}</span>
-                  <span className="font-bold text-white">{value}</span>
+                <div key={key} className="flex justify-between items-center py-2 border-b border-[#C9A876]/20 text-sm">
+                  <span className="capitalize text-[#1F3B2C] font-semibold">{key}</span>
+                  <span className="font-bold text-[#12201A] font-mono">{value}</span>
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="pt-6 text-[10px] text-cf-sky/50 text-center">
+          <div className="pt-6 text-[10px] font-sans text-[#1F3B2C]/60 text-center">
             *Percentage Daily Values are based on a 2,000 calorie diet.
           </div>
         </div>

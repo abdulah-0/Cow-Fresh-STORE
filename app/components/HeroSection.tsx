@@ -109,7 +109,7 @@ export function HeroSection() {
                 />
               </div>
 
-              {/* Floating JetBrains Mono Product Badge */}
+              {/* Floating JetBrains Mono Product Badge (No Price Tag) */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -118,22 +118,6 @@ export function HeroSection() {
               >
                 <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#B5652E] block">
                   Unsweetened · 1L
-                </span>
-                <span className="font-serif text-xs font-semibold text-[#12201A]">
-                  Rs 650
-                </span>
-              </motion.div>
-
-              {/* Quality Seal Floating Pill */}
-              <motion.div
-                initial={{ opacity: 0, y: -15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
-                className="absolute bottom-6 left-2 sm:left-6 bg-[#12201A] text-[#FAF6EF] px-4 py-2 rounded-full shadow-lg flex items-center gap-2 pointer-events-none"
-              >
-                <span className="text-xs">🌿</span>
-                <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-[#EFE3C9]">
-                  Farm Batch #042
                 </span>
               </motion.div>
             </div>

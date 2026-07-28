@@ -508,8 +508,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="font-bold py-3 px-8 rounded-xl transition-all shadow-sm text-sm hover:opacity-90"
-                  style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
+                  className="font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-sm text-sm bg-[#12201A] text-[#FAF6EF] hover:bg-[#B5652E]"
                 >
                   Continue
                 </button>
@@ -518,8 +517,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={handlePlaceOrder}
                   disabled={isSubmitting}
-                  className="font-bold py-3.5 px-8 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 hover:opacity-90"
-                  style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
+                  className="font-bold py-3.5 px-8 rounded-xl transition-all duration-300 shadow-md text-sm flex items-center gap-2 bg-[#12201A] text-[#FAF6EF] hover:bg-[#B5652E]"
                 >
                   {isSubmitting ? (
                     <>

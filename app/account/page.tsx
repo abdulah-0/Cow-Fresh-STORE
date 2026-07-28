@@ -133,9 +133,9 @@ export default function AccountPage() {
               </p>
               <Link
                 href="/products"
-                className="bg-cf-green hover:bg-cf-green/90 text-white font-bold py-2.5 px-6 rounded-full text-xs transition-all shadow-sm inline-block"
+                className="bg-[#12201A] hover:bg-[#B5652E] text-[#FAF6EF] font-sans font-semibold py-3 px-8 rounded-full text-xs transition-all duration-300 shadow-sm inline-block"
               >
-                Browse Shop Catalog
+                Browse Shop Catalog →
               </Link>
             </div>
           ) : (
@@ -180,10 +180,10 @@ export default function AccountPage() {
                         <button
                           onClick={() => handleReorder(order)}
                           disabled={isReorderingThis}
-                          className={`text-xs font-bold py-1.5 px-4 rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5 ${
+                          className={`text-xs font-bold py-1.5 px-4 rounded-xl transition-all duration-300 shadow-sm active:scale-95 flex items-center gap-1.5 ${
                             isReorderingThis
-                              ? "bg-cf-navy text-white"
-                              : "bg-cf-green hover:bg-cf-green/90 text-white"
+                              ? "bg-[#12201A] text-[#FAF6EF]"
+                              : "bg-[#12201A] hover:bg-[#B5652E] text-[#FAF6EF]"
                           }`}
                         >
                           {isReorderingThis ? (

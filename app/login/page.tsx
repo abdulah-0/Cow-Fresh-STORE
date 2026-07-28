@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,7 +13,6 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // If already logged in, redirect to dashboard
     if (typeof window !== "undefined") {
       const storedEmail = localStorage.getItem("cow_fresh_admin_email");
       if (storedEmail === "cowfreshdairy@gmail.com") {
@@ -27,52 +27,67 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      if (emailInput.trim().toLowerCase() !== "cowfreshdairy@gmail.com") {
-        setLoginError("Unauthorized email. Access is restricted to cowfreshdairy@gmail.com.");
-        setIsSubmitting(false);
+      const email = emailInput.trim().toLowerCase();
+
+      // Check if admin login
+      if (email === "cowfreshdairy@gmail.com" && passwordInput === "cowfreshadmin") {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cow_fresh_admin_email", "cowfreshdairy@gmail.com");
+        }
+        router.push("/admin/dashboard");
         return;
       }
 
-      if (passwordInput !== "cowfreshadmin") {
-        setLoginError("Invalid security passcode.");
-        setIsSubmitting(false);
+      // Customer login fallback
+      if (email && passwordInput) {
+        if (typeof window !== "undefined") {
+          const userProfile = {
+            fullName: email.split("@")[0],
+            email,
+            phone: "03310377703",
+            createdAt: new Date().toISOString()
+          };
+          localStorage.setItem("cow_fresh_customer_user", JSON.stringify(userProfile));
+        }
+        router.push("/account");
         return;
       }
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem("cow_fresh_admin_email", "cowfreshdairy@gmail.com");
-      }
-      
-      // Redirect to dashboard
-      router.push("/admin/dashboard");
+      setLoginError("Please enter a valid email and password.");
+      setIsSubmitting(false);
     }, 800);
   };
 
   return (
-    <main className="container mx-auto px-4 py-16 flex items-center justify-center bg-cf-off-white min-h-[85vh]">
-      <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-cf-sky/15 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-2" style={{ background: "linear-gradient(90deg, #45C517, #001A57)" }} />
+    <main className="container mx-auto px-4 py-16 flex items-center justify-center bg-[#FAF6EF] min-h-[85vh]">
+      <div className="w-full max-w-md bg-white rounded-3xl p-8 border border-[#C9A876]/30 shadow-xl relative overflow-hidden space-y-6">
         
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-md mx-auto mb-4"
-            style={{ background: "linear-gradient(135deg,#45C517,#37a012)" }}>
-            <span className="text-white font-bold text-2xl font-heading">C</span>
+        {/* Header Logo & Title */}
+        <div className="text-center space-y-3">
+          <div className="relative w-12 h-12 mx-auto">
+            <Image
+              src="/images/cowfresh_logo.png"
+              alt="Cow Fresh Logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
-          <h1 className="text-2xl font-bold font-heading text-cf-navy">Staff Portal Sign In</h1>
-          <p className="text-xs text-cf-charcoal/60 mt-1">
-            Access to Cow Fresh administration tools
+          <h1 className="text-3xl font-serif font-bold text-[#12201A]">Sign In</h1>
+          <p className="text-xs font-sans text-[#1F3B2C]/70">
+            Sign in to access your customer account or staff admin dashboard.
           </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           {loginError && (
-            <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-xs font-semibold text-center">
+            <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-xs font-semibold text-center font-sans">
               ⚠️ {loginError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-cf-navy uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-mono font-bold text-[#12201A] uppercase tracking-wider mb-1.5">
               Email Address
             </label>
             <input
@@ -80,21 +95,21 @@ export default function LoginPage() {
               required
               value={emailInput}
               onChange={(e) => setEmailInput(e.target.value)}
-              className="w-full px-4 py-3 bg-cf-off-white border border-cf-sky/30 rounded-xl text-sm text-cf-navy placeholder-cf-charcoal/30 focus:outline-none focus:ring-2 focus:ring-cf-green transition-all"
-              placeholder="cowfreshdairy@gmail.com"
+              className="w-full px-4 py-3 bg-[#FAF6EF] border border-[#C9A876]/40 rounded-xl text-sm text-[#12201A] focus:outline-none focus:ring-2 focus:ring-[#B5652E]"
+              placeholder="e.g. customer@gmail.com or cowfreshdairy@gmail.com"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-cf-navy uppercase tracking-wider mb-1.5">
-              Passcode
+            <label className="block text-xs font-mono font-bold text-[#12201A] uppercase tracking-wider mb-1.5">
+              Password
             </label>
             <input
               type="password"
               required
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
-              className="w-full px-4 py-3 bg-cf-off-white border border-cf-sky/30 rounded-xl text-sm text-cf-navy placeholder-cf-charcoal/30 focus:outline-none focus:ring-2 focus:ring-cf-green transition-all"
+              className="w-full px-4 py-3 bg-[#FAF6EF] border border-[#C9A876]/40 rounded-xl text-sm text-[#12201A] focus:outline-none focus:ring-2 focus:ring-[#B5652E]"
               placeholder="••••••••"
             />
           </div>
@@ -102,31 +117,27 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm hover:scale-[1.01] flex items-center justify-center gap-2"
-            style={{ backgroundColor: "#45C517", color: "#FFFFFF" }}
+            className="w-full bg-[#12201A] hover:bg-[#B5652E] text-[#FAF6EF] font-sans font-semibold py-3.5 rounded-xl shadow-md transition-all duration-300 text-sm flex items-center justify-center gap-2"
           >
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Verifying Credentials...
-              </>
-            ) : (
-              "Sign In to Dashboard"
-            )}
+            {isSubmitting ? "Verifying..." : "Sign In"}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-cf-sky/15 text-center space-y-3">
-          <div className="bg-cf-sky/10 border border-cf-sky/25 p-3.5 rounded-2xl text-[10px] text-cf-navy leading-relaxed text-left">
-            <strong>Dev Credentials:</strong> Use email <code className="bg-white px-1 py-0.5 rounded border text-xs font-bold select-all">cowfreshdairy@gmail.com</code> and passcode <code className="bg-white px-1 py-0.5 rounded border text-xs font-bold select-all">cowfreshadmin</code>.
+        <div className="pt-4 border-t border-[#C9A876]/20 text-center space-y-3">
+          <p className="text-xs font-sans text-[#1F3B2C]/70">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="font-bold text-[#B5652E] hover:underline">
+              Create an Account
+            </Link>
+          </p>
+          <div className="bg-[#FAF6EF] border border-[#C9A876]/30 p-3 rounded-2xl text-[10px] font-mono text-[#12201A] text-left">
+            <strong>Admin Login:</strong> Use email <code className="font-bold">cowfreshdairy@gmail.com</code> and passcode <code className="font-bold">cowfreshadmin</code>.
           </div>
-          <Link href="/" className="inline-block text-xs font-semibold text-cf-navy hover:text-cf-green hover:underline">
-            &larr; Return to Public Store
+          <Link href="/" className="inline-block text-xs font-sans font-medium text-[#12201A] hover:underline">
+            &larr; Return to Storefront
           </Link>
         </div>
+
       </div>
     </main>
   );

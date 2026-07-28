@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/app/context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 export function Header() {
@@ -38,12 +39,18 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-40 bg-[#12201A] border-b border-[#C9A876]/20 shadow-md">
-        <div className="container mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between">
+        <div className="container mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
           
-          {/* Brand Name (Fraunces Serif) */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-full bg-[#B5652E] flex items-center justify-center text-[#FAF6EF] font-serif font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
-              C
+          {/* Brand Logo & Name */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative w-10 h-10 md:w-11 md:h-11 flex-shrink-0 group-hover:scale-105 transition-transform">
+              <Image
+                src="/images/cowfresh_logo.png"
+                alt="Cow Fresh Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <span className="font-serif font-semibold text-2xl tracking-tight text-[#FAF6EF]">
               Cow <span className="italic text-[#B5652E]">Fresh</span>

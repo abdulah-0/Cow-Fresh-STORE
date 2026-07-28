@@ -148,14 +148,9 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
                         )}
                       </div>
 
-                      {/* Info Container (Serif Title + Mono Meta Tag + Circular Hover Button) */}
+                      {/* Info Container */}
                       <div className="p-4 md:p-5 flex flex-col flex-grow justify-between space-y-3">
                         <div>
-                          {/* JetBrains Mono Meta Line */}
-                          <span className="font-mono text-[9px] text-[#B5652E] font-bold uppercase tracking-wider block mb-1">
-                            {metaTag}
-                          </span>
-                          
                           {/* Fraunces Serif Product Name */}
                           <h3 className="font-serif font-semibold text-base text-[#12201A] line-clamp-1 group-hover:text-[#B5652E] transition-colors">
                             {product.name}
