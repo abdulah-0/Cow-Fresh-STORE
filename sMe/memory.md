@@ -44,6 +44,13 @@
 - **Summary:** Implemented `/account` user dashboard with customer stats, past order history list, status badges, and one-click reordering capability. Built `/order-confirmation/[id]` with real-time visual progress tracker (Pending → Confirmed → Packed → Out for Delivery → Delivered) and detailed printable invoice layout.
 - **Git Commit:** Phase 5 complete
 
+### Phase 6 — Admin: Auth Gate, Dashboard, Product Management
+- **Status:** Completed
+- **Timestamp:** 2026-07-28
+- **Summary:** Built Next.js middleware protection (`middleware.ts`) to enforce session and `profiles.role === 'admin'` checks. Implemented `/admin/dashboard` metrics (daily checkouts, revenue counters, active deliveries, active products). Created full product CRUD manager modal with variant price & stock editor, and product image seeding script (`scripts/seed-products.ts`) preserving real photography assets.
+- **Git Commit:** Phase 6 complete
+
+
 
 
 
