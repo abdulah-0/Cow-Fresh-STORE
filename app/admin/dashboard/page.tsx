@@ -26,9 +26,12 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   
-  // Dashboard sections: "orders" | "products"
-  const [currentSection, setCurrentSection] = useState<"orders" | "products">("orders");
+  // Dashboard sections: "orders" | "products" | "customers"
+  const [currentSection, setCurrentSection] = useState<"orders" | "products" | "customers">("orders");
   const [activeOrderTab, setActiveOrderTab] = useState<string>("all");
+
+  // Printable invoice modal state
+  const [printingOrder, setPrintingOrder] = useState<Order | null>(null);
 
   // Product editor modal state
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -409,22 +412,30 @@ export default function AdminDashboard() {
         </div>
 
         {/* Unified Section Selectors */}
-        <div className="flex bg-cf-navy/5 p-1 rounded-2xl max-w-sm gap-2">
+        <div className="flex bg-cf-navy/5 p-1 rounded-2xl max-w-md gap-2">
           <button
             onClick={() => setCurrentSection("orders")}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold text-center transition-all ${
+            className={`flex-1 py-3 px-3 rounded-xl text-xs font-bold text-center transition-all ${
               currentSection === "orders" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
             }`}
           >
-            📦 Manage Orders ({orders.length})
+            📦 Orders ({orders.length})
           </button>
           <button
             onClick={() => setCurrentSection("products")}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold text-center transition-all ${
+            className={`flex-1 py-3 px-3 rounded-xl text-xs font-bold text-center transition-all ${
               currentSection === "products" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
             }`}
           >
-            🥛 Manage Products ({products.length})
+            🥛 Products ({products.length})
+          </button>
+          <button
+            onClick={() => setCurrentSection("customers")}
+            className={`flex-1 py-3 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+              currentSection === "customers" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
+            }`}
+          >
+            👥 Customers
           </button>
         </div>
 

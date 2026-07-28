@@ -50,6 +50,13 @@
 - **Summary:** Built Next.js middleware protection (`middleware.ts`) to enforce session and `profiles.role === 'admin'` checks. Implemented `/admin/dashboard` metrics (daily checkouts, revenue counters, active deliveries, active products). Created full product CRUD manager modal with variant price & stock editor, and product image seeding script (`scripts/seed-products.ts`) preserving real photography assets.
 - **Git Commit:** Phase 6 complete
 
+### Phase 7 — Admin: Order Management + Customer Management
+- **Status:** Completed
+- **Timestamp:** 2026-07-28
+- **Summary:** Enhanced order queue filters (`all`, `pending`, `delivered`, `cancelled`) with instant status update select controls that propagate to customer tracking in real time. Added printable invoice exporter view and integrated Customer Management portal inside `/admin/dashboard` tracking customer lifetime order counts and total spent value.
+- **Git Commit:** Phase 7 complete
+
+
 
 
 
