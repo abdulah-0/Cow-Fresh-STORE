@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     // Check for dev admin cookie
     const adminCookie = request.cookies.get("cow_fresh_admin_email")?.value;
-    if (adminCookie === "cowfreshdairy@gmail.com") {
+    if (adminCookie && decodeURIComponent(adminCookie).toLowerCase().trim() === "cowfreshdairy@gmail.com") {
       return response;
     }
 

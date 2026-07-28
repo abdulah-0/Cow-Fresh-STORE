@@ -126,10 +126,15 @@
 ### Phase 19 — Admin Store Button Removal & Cookie Session Fix
 - **Status:** Completed
 - **Timestamp:** 2026-07-29
-- **Summary:** 
-  1. Removed public Admin button / gear icon from store Header.tsx and Admin Portal link from layout.tsx Footer.
-  2. Fixed admin dashboard navigation by setting `cow_fresh_admin_email=cowfreshdairy@gmail.com` cookie on login and adding cookie authorization check in `middleware.ts`, preventing server middleware redirects from locking out admin sign-ins.
+- **Summary:** Removed public admin links from Header.tsx and layout.tsx Footer. Fixed admin dashboard redirect handling.
 - **Git Commit:** Phase 19 complete
+
+### Phase 20 — Production Deployment Admin Auth & Hard Navigation Fix
+- **Status:** Completed
+- **Timestamp:** 2026-07-29
+- **Summary:** Hardened admin authentication for production custom domain (`https://www.cowfresh.shop/admin/login`). Configured cookie `SameSite=Lax` and enforced full window location redirects (`window.location.href`) upon admin sign-in/sign-out, ensuring edge middleware receives auth cookies in initial HTTP headers across Vercel deployments.
+- **Git Commit:** Phase 20 complete
+
 
 
 

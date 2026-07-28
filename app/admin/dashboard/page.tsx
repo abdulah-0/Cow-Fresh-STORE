@@ -92,13 +92,15 @@ export default function AdminDashboard() {
     // Check if logged in already
     if (typeof window !== "undefined") {
       const storedEmail = localStorage.getItem("cow_fresh_admin_email");
-      if (storedEmail === "cowfreshdairy@gmail.com") {
+      const hasCookie = document.cookie.includes("cow_fresh_admin_email=cowfreshdairy@gmail.com");
+
+      if (storedEmail === "cowfreshdairy@gmail.com" || hasCookie) {
         setIsLoggedIn(true);
       } else {
-        router.push("/admin/login");
+        window.location.href = "/admin/login";
       }
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -109,9 +111,10 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("cow_fresh_admin_email");
+      document.cookie = "cow_fresh_admin_email=; path=/; max-age=0";
     }
     setIsLoggedIn(false);
-    router.push("/admin/login");
+    window.location.href = "/admin/login";
   };
 
   // Handle order status change
