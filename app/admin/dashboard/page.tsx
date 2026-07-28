@@ -95,7 +95,7 @@ export default function AdminDashboard() {
       if (storedEmail === "cowfreshdairy@gmail.com") {
         setIsLoggedIn(true);
       } else {
-        router.push("/login");
+        router.push("/admin/login");
       }
     }
   }, [router]);
@@ -111,7 +111,7 @@ export default function AdminDashboard() {
       localStorage.removeItem("cow_fresh_admin_email");
     }
     setIsLoggedIn(false);
-    router.push("/login");
+    router.push("/admin/login");
   };
 
   // Handle order status change
