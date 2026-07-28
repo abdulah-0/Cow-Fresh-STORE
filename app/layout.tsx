@@ -35,56 +35,85 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main className="min-h-screen pb-16 md:pb-0">{children}</main>
           <MobileBottomNav />
-          <footer style={{ background: "linear-gradient(135deg,#001A57 0%,#000d33 100%)" }} className="text-white pt-14 pb-16 md:pb-8">
-            <div className="container mx-auto px-4">
+          <footer className="bg-[#12201A] text-[#FAF6EF] pt-16 pb-16 md:pb-8 border-t border-[#C9A876]/20">
+            <div className="container mx-auto px-4 md:px-8">
               {/* Top Row */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-10 border-b border-white/10">
-                {/* Brand */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-[#C9A876]/15">
+                {/* Brand Column */}
                 <div className="md:col-span-2 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-lg text-white"
-                      style={{ background: "linear-gradient(135deg,#45C517,#37a012)" }}>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-[#B5652E] flex items-center justify-center font-serif font-bold text-lg text-[#FAF6EF]">
                       C
                     </div>
-                    <span className="text-xl font-extrabold tracking-tight">
-                      Cow <span style={{ color: "#45C517" }}>Fresh</span>
+                    <span className="font-serif font-semibold text-2xl tracking-tight text-[#FAF6EF]">
+                      Cow <span className="italic text-[#B5652E]">Fresh</span>
                     </span>
                   </div>
-                  <p className="text-sm text-blue-200/70 max-w-xs leading-relaxed">
+                  <p className="text-xs font-sans text-[#DCEEF2]/70 max-w-sm leading-relaxed">
                     Farm-pure dairy delivered cold to your door. No preservatives, no standardisers — just honest milk the way nature intended.
                   </p>
-                  {/* Trust badges */}
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {["🌿 100% Natural","❄️ Cold-Chain","🧪 Lab Tested","♻️ Eco Packed"].map((b) => (
-                      <span key={b} className="text-[10px] font-bold px-3 py-1 rounded-full border border-white/15"
-                        style={{ background: "rgba(69,197,23,0.12)", color: "#7ee05a" }}>
+                  
+                  {/* JetBrains Mono Trust Badges */}
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {["🌿 100% NATURAL", "❄️ COLD-CHAIN", "🧪 LAB TESTED", "♻️ ECO PACKED"].map((b) => (
+                      <span
+                        key={b}
+                        className="font-mono text-[9px] font-bold px-3 py-1 rounded-full border border-[#C9A876]/30 bg-[#C9A876]/10 text-[#EFE3C9]"
+                      >
                         {b}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                {/* Shop */}
+                {/* Shop Links */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-extrabold uppercase tracking-widest" style={{ color: "#92CCFC" }}>Shop</h4>
-                  {[["Almond Milk","/products/almond-milk"],["Lassi","/products/lassi"],["Milk Packets","/products/milk-packet"],["Yogurt","/products/yogurt-packet"],["Desi Ghee","/products/desi-ghee"]].map(([label,href]) => (
-                    <a key={href} href={href} className="block text-sm text-blue-100/70 hover:text-white transition-colors">{label}</a>
+                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-[#B5652E]">
+                    Catalog
+                  </h4>
+                  {[
+                    ["Almond Milk", "/products/almond-milk"],
+                    ["Lassi", "/products/lassi"],
+                    ["Milk Packets", "/products/milk-packet"],
+                    ["Yogurt", "/products/yogurt-packet"],
+                    ["Desi Ghee", "/products/desi-ghee"],
+                  ].map(([label, href]) => (
+                    <a
+                      key={href}
+                      href={href}
+                      className="block text-xs font-sans text-[#DCEEF2]/80 hover:text-[#B5652E] transition-colors"
+                    >
+                      {label}
+                    </a>
                   ))}
                 </div>
 
-                {/* Company */}
+                {/* Company Links */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-extrabold uppercase tracking-widest" style={{ color: "#92CCFC" }}>Company</h4>
-                  {[["About Us","/about"],["Contact","/contact"],["My Account","/account"],["Admin","/admin/dashboard"]].map(([label,href]) => (
-                    <a key={href} href={href} className="block text-sm text-blue-100/70 hover:text-white transition-colors">{label}</a>
+                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-[#B5652E]">
+                    Navigation
+                  </h4>
+                  {[
+                    ["About Us", "/about"],
+                    ["Contact", "/contact"],
+                    ["My Account", "/account"],
+                    ["Admin Portal", "/admin/dashboard"],
+                  ].map(([label, href]) => (
+                    <a
+                      key={href}
+                      href={href}
+                      className="block text-xs font-sans text-[#DCEEF2]/80 hover:text-[#B5652E] transition-colors"
+                    >
+                      {label}
+                    </a>
                   ))}
                 </div>
               </div>
 
-              {/* Bottom Row */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 text-xs text-blue-200/40">
+              {/* Bottom Copyright Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 font-mono text-[10px] text-[#DCEEF2]/40">
                 <p>&copy; 2026 Cow Fresh. All rights reserved.</p>
-                <p>Made with ❤️ in Pakistan · Pure Dairy Since 2026</p>
+                <p>Morning Pour Sourcing · Pure Dairy Standard</p>
               </div>
             </div>
           </footer>
