@@ -100,6 +100,46 @@ export default function OrderConfirmationPage() {
           <div className="inline-block bg-cf-off-white px-4 py-2 rounded-2xl border border-cf-sky/20 text-xs text-cf-charcoal/70 font-mono">
             Order ID: <span className="font-bold text-cf-navy select-all">{order.id}</span>
           </div>
+
+          {/* Visual Order Status Progress Tracker */}
+          <div className="mt-8 pt-6 border-t border-cf-sky/15">
+            <h4 className="text-xs font-extrabold uppercase tracking-widest text-cf-navy mb-6">Real-Time Order Tracking Status</h4>
+            <div className="flex items-center justify-between relative max-w-lg mx-auto">
+              <div className="absolute left-0 right-0 top-1/2 h-1 bg-cf-sky/20 -translate-y-1/2 z-0" />
+              {(() => {
+                const statuses = ["Pending", "Confirmed", "Packed", "Out for Delivery", "Delivered"];
+                const currentIdx = statuses.indexOf(order.status) !== -1 ? statuses.indexOf(order.status) : 0;
+                const progressWidth = (currentIdx / (statuses.length - 1)) * 100;
+
+                return (
+                  <>
+                    <div
+                      className="absolute left-0 top-1/2 h-1 bg-cf-green -translate-y-1/2 z-0 transition-all duration-500"
+                      style={{ width: `${progressWidth}%` }}
+                    />
+
+                    {statuses.map((st, idx) => {
+                      const isDone = idx <= currentIdx;
+                      return (
+                        <div key={st} className="relative z-10 flex flex-col items-center">
+                          <div
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                              isDone ? "bg-cf-green text-white shadow-md scale-110" : "bg-white border-2 border-cf-sky/40 text-cf-charcoal/40"
+                            }`}
+                          >
+                            {isDone ? "✓" : idx + 1}
+                          </div>
+                          <span className={`text-[10px] mt-2 font-semibold ${isDone ? "text-cf-navy font-bold" : "text-cf-charcoal/40"}`}>
+                            {st}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
         </motion.div>
 
         {/* Details Grid */}

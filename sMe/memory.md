@@ -38,6 +38,13 @@
 - **Summary:** Enhanced 4-step `/checkout` flow (Address Details → Delivery Slot → Payment Method → Order Review). Added live discount code validation (`FRESH10`, `WELCOME50`, `COWFRESH20`). Written atomic Postgres stored procedure `place_order` in `supabase/schema.sql` to execute order creation, item snapshots, and stock quantity decrements inside a single transaction.
 - **Git Commit:** Phase 4 complete
 
+### Phase 5 — Account Area
+- **Status:** Completed
+- **Timestamp:** 2026-07-28
+- **Summary:** Implemented `/account` user dashboard with customer stats, past order history list, status badges, and one-click reordering capability. Built `/order-confirmation/[id]` with real-time visual progress tracker (Pending → Confirmed → Packed → Out for Delivery → Delivered) and detailed printable invoice layout.
+- **Git Commit:** Phase 5 complete
+
+
 
 
 
