@@ -51,6 +51,36 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </button>
             </div>
 
+            {/* Free Delivery Progress Bar */}
+            {items.length > 0 && (() => {
+              const freeDeliveryThreshold = 1500;
+              const remaining = Math.max(0, freeDeliveryThreshold - total);
+              const progressPercentage = Math.min(100, (total / freeDeliveryThreshold) * 100);
+
+              return (
+                <div className="bg-white px-6 py-3 border-b border-cf-sky/20">
+                  <div className="flex justify-between items-center text-xs font-semibold mb-1.5">
+                    {remaining > 0 ? (
+                      <span className="text-cf-navy">
+                        Add <span className="text-cf-green font-bold">Rs {remaining}</span> more for <span className="text-cf-green font-bold">FREE</span> delivery!
+                      </span>
+                    ) : (
+                      <span className="text-cf-green font-bold flex items-center gap-1">
+                        🎉 You&apos;ve unlocked FREE delivery!
+                      </span>
+                    )}
+                    <span className="text-cf-charcoal/50 text-[10px]">{Math.round(progressPercentage)}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-cf-sky/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-cf-green transition-all duration-500 rounded-full"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Cart Items List */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {items.length === 0 ? (
