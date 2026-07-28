@@ -1,327 +1,423 @@
-# Product Requirements Document — Cow Fresh E-Commerce Store
+# Product Requirements Document
+## Cow Fresh — Dairy E-Commerce Platform
 
 **Version:** 1.0
 **Owner:** Abdullah
-**Last updated:** June 19, 2026
-**Stack:** Next.js (React) + Supabase · Mobile-first
+**Stack:** Next.js (App Router) + Supabase (Postgres, Auth, Storage, Row-Level Security) + Tailwind CSS + Framer Motion
+**Document type:** Implementation-ready spec for AI code editors (Cursor / Windsurf)
 
 ---
 
 ## 1. Overview
 
-Cow Fresh is a direct-to-consumer dairy e-commerce store selling five core products: almond milk bottles, lassi, milk packets, yogurt packets, and desi ghee. The flagship UX feature is a **3D-style scroll-driven hero animation**: on load, all five products appear together on screen; as the user scrolls, the main "hero" bottle (almond milk) animates forward/rotates while the other four products drift out of frame, leaving the hero product as the focal point for the rest of the scroll-into-story sequence.
+Cow Fresh is a direct-to-consumer dairy e-commerce store selling milk, yogurt, butter, cheese, ghee, and related products. The platform consists of two applications sharing one Supabase backend:
 
-This is achieved **without a real 3D model** — using high-quality product photography (or AI-generated photo-real renders) animated with CSS 3D transforms and a scroll-linked animation library. This keeps load times low and works smoothly on mobile, which is the primary target device.
+1. **Storefront** — public-facing store with product browsing, cart, checkout, order tracking, and account management. Built for a modern, fast, mobile-first shopping experience.
+2. **Admin Panel** — a separate, access-gated interface for managing products, orders, inventory, customers, and store content. Only accessible to users with an `admin` role; there is no public sign-up path into it.
+
+Both apps read/write the same Supabase project but are deployed as logically separate route groups (or separate apps) so admin code and secrets never ship to the public bundle.
 
 ---
 
-## 2. Goals & Non-Goals
+## 2. Rebuild Approach — Clean Slate
+
+This is a **full rebuild, not an incremental change.** Before any new code is written, the AI code editor (Cursor/Windsurf) must:
+
+1. Delete all existing project files (source code, config, generated build artifacts) **except**:
+   - The existing product images folder in the project root — these are real assets and must be preserved and reused, not regenerated or replaced with stock/AI images.
+   - Any `.env` / environment files containing live Supabase or payment credentials (back these up first, do not commit them, but do not delete the working local copy).
+2. Re-initialize the project from scratch (fresh Next.js app scaffold) per Section 4.
+3. Re-create the Supabase schema from Section 7 in a clean state (drop and recreate tables, or point to a fresh Supabase project if preferred — confirm which before running destructive SQL against a live project).
+4. Copy the preserved product images into the new project's asset pipeline (e.g. `/public/products/` or upload directly to Supabase Storage — see Section 10.2a) rather than sourcing new photography or placeholder images.
+
+**Safety check before deletion:** if the existing project has any live customer data, orders, or a production Supabase database already in use, confirm with Abdullah whether the Supabase project itself should be wiped/recreated or only the frontend codebase. This PRD assumes the frontend is being rebuilt; the Supabase backend should only be reset if explicitly confirmed, since that would destroy any existing orders/customers.
+
+---
+
+## 3. Goals & Non-Goals
 
 ### Goals
-- A fast, mobile-first storefront that feels premium and modern, not like a generic Shopify template.
-- A memorable, scroll-driven hero section that visually demonstrates the product range and then focuses attention on the flagship product.
-- Easy-to-manage product catalog via Supabase, so adding/editing products doesn't require a redeploy.
-- Brand identity (color, type, tone) pulled directly from the Cow Fresh logo.
-- Core e-commerce flows: browse → product detail → cart → checkout → order confirmation.
+- A polished, trustworthy storefront that converts browsers into repeat dairy subscribers.
+- A secure admin panel gated behind Supabase Auth + role check, not just a hidden URL.
+- Real-time-ish inventory accuracy (stock decremented on order confirmation).
+- Clean data model in Supabase that supports future subscription/recurring-delivery features.
+- Sub-2.5s perceived load time on the storefront; smooth transitions everywhere (page transitions, cart drawer, image loading).
 
 ### Non-Goals (v1)
-- No real-time 3D model viewer (e.g., `<model-viewer>`/glTF) — explicitly out of scope per decision to use photography + CSS transforms instead.
-- No multi-vendor or marketplace features.
-- No subscription/recurring delivery model in v1 (flag as a v2 idea — common for dairy/milk delivery businesses).
-- No native mobile app — mobile-first **responsive web** only.
+- No multi-vendor marketplace support.
+- No native mobile app (responsive web only).
+- No subscription/recurring orders in v1 (schema should allow adding it later).
+- No multi-currency/multi-language support in v1.
 
 ---
 
-## 3. Target Users & Context
-
-- Primary device: **mobile** (assume 70-80% of traffic is mobile, typical for FMCG/grocery in Pakistan/South Asia region).
-- Users are likely ordering for household/weekly grocery needs — repeat purchase behavior matters (favorites, reorder, simple cart).
-- Connection speeds may be inconsistent (3G/4G) — performance budget matters more than visual flourish. The hero animation must degrade gracefully on low-end devices.
-
----
-
-## 4. Brand & Visual Identity
-
-Derived directly from the uploaded Cow Fresh logo (`CF-logo.png`). Exact hex values pulled via pixel sampling:
-
-| Token | Hex | Usage |
-|---|---|---|
-| **Cow Fresh Green** (primary brand) | `#45C517` | Primary buttons, brand banner, active states, badges ("Fresh", "New") |
-| **Cow Fresh Navy** (secondary/dark) | `#001A57` | Header/footer background, headings, dark UI sections, text on light bg |
-| **Cow Fresh Sky** (accent/light) | `#92CCFC` | Borders, secondary accents, hover states, soft backgrounds, icons |
-| **Off-white** | `#FAFAF8` | Page background (avoid pure `#FFFFFF` for a softer, "dairy" warmth) |
-| **Charcoal** (body text) | `#1C1C1E` | Body copy on light backgrounds |
-| **White** | `#FFFFFF` | Text on green/navy, card backgrounds |
-
-**Usage notes:**
-- Green (`#45C517`) = primary CTA color (Add to Cart, Buy Now, nav highlights).
-- Navy (`#001A57`) = "premium/trust" anchor — use for header, footer, and pricing/typography to keep the site from feeling like a cartoonish kids' brand despite the bright green.
-- Sky blue (`#92CCFC`) = the "fresh/dairy" accent — great for subtle gradients behind product photography, tags like "100% Natural," and the scroll-section backgrounds (evokes milk/cream visually when used as a soft radial gradient).
-- Maintain at least one full-bleed section using the navy + sky-blue gradient combo from the logo's center oval — it's the most distinctive part of the mark and underused if you only pull the green.
-
-**Typography (recommendation):**
-- Headings: a rounded, confident sans-serif (e.g., **Poppins** or **Sora**) to match the logo's bold rounded wordmark.
-- Body: a clean, highly legible sans-serif (e.g., **Inter**) for product descriptions, prices, nutrition info.
-- Both are free via Google Fonts / `next/font`.
-
-**Logo usage:**
-- Use the ribbon/banner logo as-is for the favicon and footer.
-- For the header/nav, consider a simplified horizontal lockup (cow icon + "Cow Fresh" wordmark side by side) for better mobile header height — the full vertical ribbon logo is tall and will eat mobile header space. This can be generated as a derivative asset (see Section 8, image generation).
-
----
-
-## 5. Information Architecture
-
-```
-/                       → Home (hero animation, featured products, brand story strip)
-/products               → All products grid (filter by category: Milk / Lassi / Yogurt / Ghee)
-/products/[slug]        → Product detail page (images, variants, price, nutrition, add to cart)
-/cart                    → Cart drawer (slide-over, accessible from anywhere) + dedicated /cart page
-/checkout               → Address, delivery slot, payment method, order review
-/order-confirmation/[id] → Order success + summary
-/account                → Order history, saved addresses (Supabase Auth)
-/about                  → Brand story, farm sourcing, sustainability
-/contact                → Contact form / WhatsApp/social links
-```
-
----
-
-## 6. Product Catalog (Initial 5 Products)
-
-This is the seed catalog. Structure it so each product can have **multiple variants** (size/pack count), since dairy products commonly do.
-
-| # | Product | Category | Suggested Variants | Notes |
-|---|---|---|---|---|
-| 1 | Almond Milk | Milk (Bottle) | 500ml, 1L | **Hero product** for the scroll animation |
-| 2 | Lassi | Lassi | 250ml cup, 500ml bottle, 1L jug | Consider flavor variants (Sweet, Salted, Mango) |
-| 3 | Milk (Packets) | Milk (Packet) | 250ml, 500ml, 1L pouch | Standard pasteurized/UHT milk |
-| 4 | Yogurt (Packets) | Yogurt | 200g, 500g, 1kg | Plain/Greek-style if applicable |
-| 5 | Desi Ghee | Ghee | 250g jar, 500g jar, 1kg jar | Premium positioning — your highest price point, photograph in glass jar against navy/sky gradient background |
-
-### How to provide/structure product data
-
-You have two practical options — recommend a hybrid:
-
-**Option A — Supabase as source of truth (recommended for this stack).**
-Since you're already using Supabase, model products there from day one rather than hardcoding JSON in the repo. Suggested schema:
-
-```sql
--- products table
-create table products (
-  id uuid primary key default gen_random_uuid(),
-  slug text unique not null,
-  name text not null,
-  category text not null check (category in ('milk_bottle','lassi','milk_packet','yogurt','ghee')),
-  description text,
-  short_tagline text,
-  is_hero_product boolean default false,   -- flags the product used in the hero scroll animation
-  nutrition_info jsonb,                    -- {calories, fat, protein, ...}
-  is_active boolean default true,
-  sort_order int default 0,
-  created_at timestamptz default now()
-);
-
--- product_variants table
-create table product_variants (
-  id uuid primary key default gen_random_uuid(),
-  product_id uuid references products(id) on delete cascade,
-  label text not null,        -- e.g. "500ml", "1kg Jar"
-  price numeric(10,2) not null,
-  compare_at_price numeric(10,2),  -- for showing discounts
-  sku text unique,
-  stock_quantity int default 0,
-  is_default boolean default false
-);
-
--- product_images table
-create table product_images (
-  id uuid primary key default gen_random_uuid(),
-  product_id uuid references products(id) on delete cascade,
-  image_url text not null,         -- Supabase Storage public URL
-  alt_text text,
-  is_primary boolean default false,
-  sort_order int default 0,
-  image_type text default 'gallery' check (image_type in ('gallery','hero_scroll','thumbnail'))
-);
-```
-
-- Store actual image files in **Supabase Storage** (a `product-images` bucket), reference via public URL in `product_images`.
-- This lets you (or a future non-technical teammate) add/edit products and swap photos from the Supabase dashboard or a simple internal admin page — no code deploy needed.
-- Use Supabase's auto-generated REST/JS client in Next.js (`@supabase/supabase-js`) with **server components / route handlers** for product fetches, and **Row Level Security (RLS)** policies so public reads are allowed but writes require an authenticated admin role.
-
-**Option B — Static JSON/TS for v1 launch speed, migrate later.**
-If you want to launch fast and Supabase auth/admin tooling isn't ready yet, define products in a typed `products.ts` file and swap to Supabase queries later behind the same TypeScript interface (`getAllProducts()`, `getProductBySlug()`), so the swap is a one-file change, not a rewrite.
-
-```ts
-// types/product.ts
-export interface ProductVariant {
-  id: string;
-  label: string;       // "500ml"
-  price: number;
-  compareAtPrice?: number;
-  sku: string;
-  stock: number;
-}
-
-export interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  category: 'milk_bottle' | 'lassi' | 'milk_packet' | 'yogurt' | 'ghee';
-  tagline: string;
-  description: string;
-  isHeroProduct: boolean;
-  images: { url: string; alt: string; type: 'gallery' | 'hero_scroll' | 'thumbnail' }[];
-  variants: ProductVariant[];
-  nutrition?: Record<string, string>;
-}
-```
-
-**Recommendation:** Go straight to Supabase (Option A) since it's already your backend — avoids a migration step and lets you use Supabase Auth for the `/account` order-history page too.
-
-### Image requirements per product
-For the hero scroll animation specifically, each "hero-eligible" product needs a **clean cutout shot** (transparent or solid-color background) in addition to normal lifestyle/catalog photography:
-- 1× front-facing cutout, transparent PNG, min. 2000px tall, consistent lighting angle across all 5 products (critical — mismatched lighting/shadows between products will break the illusion that they're "in the same scene").
-- 1–2× lifestyle/context shots per product for the product detail page gallery.
-- 1× close-up detail shot (label, texture, pour shot) for product detail page.
-
----
-
-## 7. Hero Section — Scroll Animation Spec
-
-### 7.1 Concept
-1. **Initial state (on load):** All 5 products are visible, arranged in a loose cluster/grid around or behind the hero product (Almond Milk bottle), like products "presented" on a shelf or floating arrangement. Headline + CTA overlay on top.
-2. **On scroll (0–100% of hero scroll distance):**
-   - The 4 secondary products (Lassi, Milk Packet, Yogurt, Ghee) animate outward and fade out — moving toward the edges of the viewport and/or scaling down, simulating depth (z-axis push-back).
-   - The hero bottle (Almond Milk) simultaneously scales up slightly and/or rotates (e.g., 15–25° Y-axis tilt change) to feel "alive," staying centered and in focus.
-   - Background may shift (color/gradient transition) to reinforce the transition from "all products" to "hero product" section.
-3. **End state:** Hero bottle settles into a pinned/centered position as the next content section (e.g., "Why Cow Fresh" or product highlights) scrolls in beneath/around it.
-
-### 7.2 Technique (no real 3D model required)
-This is achieved with **2D images animated through 3D CSS space** — a well-established technique (used heavily by Apple product pages, e.g. AirPods/iPhone reveal pages) that reads as "3D" without actual 3D geometry:
-
-- Each product photo sits in its own layer (`<div>`/`<Image>`).
-- Apply `transform: translate3d() / scale() / rotateY() / rotateX()` driven by scroll progress.
-- Use `perspective` on the parent container to give the rotation/translation real depth.
-- Interpolate transform values based on scroll progress (0 → 1) using a scroll-linked animation library (see 7.3).
-
-### 7.3 Recommended Libraries
-
-| Library | Purpose | Why |
-|---|---|---|
-| **Framer Motion** (`framer-motion`) | Primary animation engine — `useScroll` + `useTransform` hooks map scroll progress to transform values per element | Native React/Next.js integration, declarative, handles spring physics for the "settle into place" feel, well-documented, large community |
-| **GSAP + ScrollTrigger** (`gsap`, `gsap/ScrollTrigger`) | Alternative/optional — more powerful timeline sequencing if the animation gets complex (e.g., staggered exits, pinning sections) | Industry standard for scroll storytelling (used on many premium product sites); slightly steeper learning curve than Framer Motion but more precise timeline control and built-in scroll "pinning" |
-| **Lenis** (`@studio-freight/lenis` or `lenis`) | Smooth scroll wrapper | Makes scroll-linked animation feel buttery instead of janky/stepped, especially important since native scroll-jank is the #1 complaint with scroll animations on mobile |
-| **next/image** | Image optimization/serving | Required regardless — handles responsive sizing, lazy loading, WebP/AVIF conversion for the product photography |
-| **Tailwind CSS** | Styling | Pairs cleanly with the above; utility classes keep the transform-heavy components manageable |
-
-**Suggested combo for this project:** **Framer Motion + Lenis**. GSAP/ScrollTrigger is excellent but is overkill unless the storytelling gets much more elaborate (multi-stage pinned sections, complex stagger choreography across many breakpoints). Framer Motion's `useScroll`/`useTransform` will comfortably handle the "5 products → 1 hero product" sequence described above and has a gentler learning curve in a React/Next.js codebase.
-
-> If, after prototyping, Framer Motion feels limited for very precise pinning/timeline sync, GSAP ScrollTrigger is the documented escape hatch — they can also coexist (GSAP just for the hero, Framer Motion for the rest of the site).
-
-### 7.4 Mobile-first considerations (critical)
-- **Reduce motion complexity on small viewports.** On mobile, simplify to: fade + scale only (skip heavy rotateY/rotateX depth effects) — full 3D-feeling depth often reads as visually busy on small screens and costs more on lower-end GPUs.
-- **Respect `prefers-reduced-motion`** — provide a static fallback (simple fade/slide) for users with that OS setting enabled; this is both an accessibility requirement and good practice.
-- **Pre-decode/pre-load** all 5 hero images before the animation is interactive — show a lightweight skeleton/blur-up placeholder otherwise; nothing kills the "premium" feel like images popping in mid-scroll.
-- **Cap to transform/opacity only** (never animate `top/left/width/height` directly) — these are GPU-accelerated and won't trigger layout reflow, which matters a lot on mid-range Android devices.
-- **Test on throttled CPU + 4G network** (Chrome DevTools) before considering the hero "done" — this is the #1 way these animations end up feeling broken in the real world despite looking great in a fast dev environment.
-- Pin the hero section height carefully on mobile — overly long scroll-jacked sections feel tedious on a small screen. Recommend hero scroll distance ≈ 1.2–1.5× viewport height on mobile vs. 2–2.5× on desktop.
-
----
-
-## 8. Image Generation & Asset Pipeline (Nano Banana)
-
-Since you're generating imagery with **Nano Banana** (Google's image generation model), here's how to use it effectively for this project:
-
-### What to generate vs. what to photograph
-- **Best for Nano Banana:** background scenes, lifestyle context shots (e.g., a glass of lassi on a rustic wooden table with mint leaves, a farm-field backdrop echoing the logo's pastoral scene), marketing banner art, Instagram/social assets, the "About" page farm imagery, abstract gradient backgrounds for section dividers.
-- **Use real product photography (or very carefully prompted/consistent AI renders) for:** the 5 hero-product cutouts used in the scroll animation. These need pixel-consistent lighting, angle, and scale across all 5 products since they'll appear together on screen — small inconsistencies here are visually obvious. If using Nano Banana for these too, generate all 5 in the same session/prompt style (same lighting direction, same camera angle, same background-removal approach) and do a manual consistency pass (color-match, shadow-match) afterward — don't generate them across separate disconnected sessions.
-
-### Suggested asset list to generate
-1. Hero cutouts (transparent bg) — Almond Milk bottle, Lassi bottle/cup, Milk packet, Yogurt packet, Ghee jar (5 images, consistent style).
-2. Lifestyle/context shots per product (2-3 each) — for product detail pages.
-3. Background textures/gradients evoking the logo's navy-oval farm scene (rolling green fields, sunrise, water reflection) — for section backgrounds, reinforcing brand storytelling without being literal photos every time.
-4. Simplified horizontal logo lockup for the mobile nav bar (cow icon + wordmark side-by-side) derived from the existing vertical ribbon logo.
-5. Icon set for trust badges ("100% Natural," "Farm Fresh," "No Preservatives") in the brand's line-art style matching the cow illustration's linework.
-
-### Practical tips for Nano Banana specifically
-- Prompt with explicit consistent parameters across all 5 product generations: lighting angle, camera height, background color/value, lens/perspective — reuse the same descriptive prompt skeleton and only swap the product noun.
-- Generate at the highest resolution available, then upscale/clean in a tool like Photoshop or an online background remover (e.g., remove.bg) if transparency isn't clean directly out of the model.
-- Keep raw generated assets in a dedicated `/design/raw-generated/` folder separate from the final `/public/images/` (or Supabase Storage) assets you actually ship — you'll iterate, and you don't want to lose track of "what's final."
-
----
-
-## 9. Tech Stack Summary
+## 4. Tech Stack
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Framework | **Next.js (App Router)** | SSR/SSG for product pages = better SEO and faster first paint than a pure client SPA |
-| UI library | **React** | — |
-| Styling | **Tailwind CSS** | Fast iteration, easy to encode the brand tokens from Section 4 as Tailwind theme colors |
-| Animation | **Framer Motion** (+ optional GSAP ScrollTrigger for hero edge cases) | See Section 7 |
-| Smooth scroll | **Lenis** | See Section 7 |
-| Backend / DB | **Supabase (Postgres)** | Products, variants, images, orders, users |
-| Auth | **Supabase Auth** | Customer accounts, order history |
-| File storage | **Supabase Storage** | Product images |
-| Payments | **Stripe** (or local equivalent — e.g., JazzCash/Easypaisa if targeting Pakistan market directly) | Decide based on actual target market; flag as open decision |
-| Hosting | **Vercel** | Native Next.js support, fast edge delivery, simple CI/CD |
-| Coding environment | **Antigravity** | Per your existing setup |
-| Image generation | **Nano Banana** | Per your existing setup — see Section 8 |
+| Frontend framework | Next.js 14+ (App Router) | Server Components for product/catalog pages, Client Components for cart/checkout interactivity |
+| Styling | Tailwind CSS | Utility-first, paired with a small design-token file for brand colors/typography |
+| Animation | Framer Motion | Page transitions, cart drawer, add-to-cart micro-interactions, skeleton loaders |
+| Backend/DB | Supabase (Postgres) | Single source of truth for both storefront and admin |
+| Auth | Supabase Auth (email/password + optional Google OAuth) | Role stored in a `profiles` table, enforced via RLS policies, not just client-side checks |
+| File storage | Supabase Storage | Product images, category banners |
+| Payments | Stripe (or JazzCash/EasyPaisa if targeting Pakistan-only checkout) | Payment intent created server-side via a Next.js Route Handler |
+| Hosting | Vercel (frontend) + Supabase Cloud (backend) | |
+| State management | React Context / Zustand for cart state | Persisted to `localStorage` for guests, synced to Supabase `cart_items` table for logged-in users |
 
-**Open decision to confirm before build starts:** payment gateway — this depends on which market you're launching in (affects checkout flow design significantly), so a separate ask/answer.
+**Decision needed from Abdullah:** confirm payment processor (Stripe requires an internationally-enabled business account; if targeting Pakistani customers only, JazzCash/EasyPaisa or Cash-on-Delivery may be more practical). This PRD assumes **Cash on Delivery (COD) + optional Stripe** as the default until confirmed, since COD is the lowest-friction path to ship v1.
 
 ---
 
-## 10. Mobile-First Design Requirements
+## 5. User Roles
 
-- Design and build **mobile breakpoint first**, then enhance up to tablet/desktop — not the reverse.
-- Sticky, thumb-friendly **bottom cart bar** on product pages (common, high-converting pattern for mobile commerce) rather than relying solely on a top-nav cart icon.
-- Minimum tappable target size 44×44px for all buttons/icons.
-- Product grid: 2 columns on mobile, scaling to 3-4 on tablet/desktop.
-- Checkout: single-column, progressive form (address → delivery → payment) rather than a long all-at-once form — reduces mobile cart abandonment.
-- Sticky/condensed header on scroll (logo + cart icon only) to preserve vertical space on small screens.
-- Performance budget target: **Lighthouse mobile score ≥ 85**, Largest Contentful Paint (LCP) **< 2.5s** on simulated 4G.
+| Role | Description | Access |
+|---|---|---|
+| **Guest** | Unauthenticated visitor | Browse, add to cart, must create account or checkout as guest at final step |
+| **Customer** | Registered shopper | Order history, saved addresses, wishlist, profile |
+| **Admin** | Store operator (Abdullah / staff) | Full access to `/admin/*` routes: products, orders, inventory, customers, discounts, content |
 
----
-
-## 11. Core E-commerce Functional Requirements
-
-- Product browsing with category filter (Milk / Lassi / Yogurt / Ghee).
-- Product detail page: image gallery, variant selector (size/pack), price, nutrition info, "Add to Cart," related products.
-- Cart: add/remove/update quantity, persists across sessions (Supabase if logged in, else local storage merged on login).
-- Checkout: guest checkout allowed; delivery address (with support for delivery-area/slot selection, relevant for perishable dairy); order summary; payment.
-- Order confirmation page + email/notification (Supabase Edge Function or a transactional email provider like Resend).
-- Customer account: order history, saved addresses, reorder button (high-value for repeat dairy purchases).
-- Admin-side: simple internal dashboard or direct Supabase Studio use for managing products/orders in v1 (a dedicated admin UI can be a v2 item).
+Role is stored as a column on a `profiles` table (`role: 'customer' | 'admin'`), **never** trusted from client state. Every admin-only Supabase query is additionally protected by Row-Level Security policies that check `auth.uid()` against the `profiles.role` column, so even a direct API call from outside the app cannot read/write admin data without the correct role.
 
 ---
 
-## 12. Success Metrics
+## 6. Information Architecture
 
-- Mobile Lighthouse performance score ≥ 85.
-- Hero section scroll completion rate (% of users who scroll past the hero) — track via analytics event.
-- Add-to-cart rate from product detail pages.
-- Checkout completion rate (cart → order placed).
-- Repeat purchase rate within 30 days (dairy is a recurring-purchase category — this is a key health metric).
+### Storefront routes
+```
+/                          Home (hero, featured products, brand story, testimonials)
+/shop                      All products, filters (category, price, in-stock)
+/shop/[category]           Category listing (Milk, Yogurt, Cheese, Butter, Ghee, ...)
+/product/[slug]            Product detail page
+/cart                      Cart drawer (also accessible as slide-over from any page)
+/checkout                  Address → Delivery slot → Payment → Review
+/checkout/success           Order confirmation
+/account                   Profile, saved addresses
+/account/orders            Order history
+/account/orders/[id]       Order detail + tracking status
+/wishlist                  Saved items
+/login, /signup            Auth screens
+/about, /contact           Static/content pages
+```
+
+### Admin routes (separate layout, auth-gated)
+```
+/admin/login                          Admin-only login (rejects non-admin accounts)
+/admin                                Dashboard: today's orders, revenue, low-stock alerts
+/admin/products                       Product list, search, filter
+/admin/products/new                   Create product
+/admin/products/[id]/edit             Edit product, manage variants & stock
+/admin/orders                         Order queue with status filters
+/admin/orders/[id]                    Order detail, update status, print invoice
+/admin/customers                      Customer list, order history per customer
+/admin/discounts                      Coupon/discount code management
+/admin/content                        Manage homepage banners, featured products
+/admin/settings                       Delivery zones, delivery slots, store hours
+```
 
 ---
 
-## 13. Open Questions / Decisions Needed Before Build
+## 7. Supabase Data Model
 
-1. Target market/region → determines payment gateway and delivery-area logic (Stripe vs. local wallets).
-2. Delivery model — on-demand checkout only, or scheduled delivery slots/subscription (common for dairy, worth at least flagging for v2)?
-3. Will product photography be fully AI-generated (Nano Banana) or a mix with real photography? Affects the consistency plan in Section 8.
-4. Do you need a non-technical admin UI for managing products, or is direct Supabase Studio access sufficient for now?
+```sql
+-- Profiles (extends auth.users)
+create table profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  full_name text,
+  phone text,
+  role text not null default 'customer' check (role in ('customer', 'admin')),
+  created_at timestamptz default now()
+);
+
+-- Categories
+create table categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text unique not null,
+  image_url text,
+  sort_order int default 0
+);
+
+-- Products
+create table products (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text unique not null,
+  description text,
+  category_id uuid references categories(id),
+  base_price numeric(10,2) not null,
+  unit text not null,              -- e.g. '1L', '500g', '250ml'
+  image_urls text[] default '{}',
+  is_active boolean default true,
+  is_featured boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Product variants (e.g. 500ml / 1L / 2L of the same milk)
+create table product_variants (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid references products(id) on delete cascade,
+  variant_name text not null,
+  price numeric(10,2) not null,
+  stock_quantity int not null default 0,
+  sku text unique
+);
+
+-- Addresses
+create table addresses (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  label text,                       -- 'Home', 'Work'
+  address_line text not null,
+  city text not null,
+  phone text not null,
+  is_default boolean default false
+);
+
+-- Carts (server-synced for logged-in users)
+create table cart_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  variant_id uuid references product_variants(id),
+  quantity int not null check (quantity > 0),
+  created_at timestamptz default now(),
+  unique (user_id, variant_id)
+);
+
+-- Orders
+create table orders (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id),
+  status text not null default 'pending'
+    check (status in ('pending','confirmed','packed','out_for_delivery','delivered','cancelled')),
+  address_id uuid references addresses(id),
+  delivery_slot text,
+  payment_method text not null check (payment_method in ('cod','card')),
+  payment_status text not null default 'unpaid' check (payment_status in ('unpaid','paid','refunded')),
+  subtotal numeric(10,2) not null,
+  discount_amount numeric(10,2) default 0,
+  delivery_fee numeric(10,2) default 0,
+  total numeric(10,2) not null,
+  created_at timestamptz default now()
+);
+
+-- Order items (snapshot of price/name at time of order)
+create table order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid references orders(id) on delete cascade,
+  variant_id uuid references product_variants(id),
+  product_name text not null,
+  variant_name text not null,
+  unit_price numeric(10,2) not null,
+  quantity int not null,
+  line_total numeric(10,2) not null
+);
+
+-- Discount codes
+create table discount_codes (
+  id uuid primary key default gen_random_uuid(),
+  code text unique not null,
+  discount_type text not null check (discount_type in ('percentage','fixed')),
+  value numeric(10,2) not null,
+  min_order_value numeric(10,2) default 0,
+  expires_at timestamptz,
+  is_active boolean default true
+);
+
+-- Wishlist
+create table wishlist_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  product_id uuid references products(id) on delete cascade,
+  unique (user_id, product_id)
+);
+```
+
+### Row-Level Security (RLS) — key policies
+
+```sql
+alter table profiles enable row level security;
+alter table products enable row level security;
+alter table product_variants enable row level security;
+alter table orders enable row level security;
+alter table order_items enable row level security;
+alter table cart_items enable row level security;
+
+-- Helper: is the current user an admin?
+create or replace function is_admin() returns boolean as $$
+  select exists (
+    select 1 from profiles where id = auth.uid() and role = 'admin'
+  );
+$$ language sql security definer stable;
+
+-- Products: public read, admin-only write
+create policy "public read products" on products for select using (is_active = true or is_admin());
+create policy "admin write products" on products for insert with check (is_admin());
+create policy "admin update products" on products for update using (is_admin());
+create policy "admin delete products" on products for delete using (is_admin());
+
+-- Orders: customers see only their own; admins see all
+create policy "customers read own orders" on orders for select using (user_id = auth.uid() or is_admin());
+create policy "customers create own orders" on orders for insert with check (user_id = auth.uid());
+create policy "admin update orders" on orders for update using (is_admin());
+
+-- Cart items: only the owning user
+create policy "own cart only" on cart_items for all using (user_id = auth.uid());
+
+-- Profiles: users read/update their own row; only admins can change role
+create policy "read own profile" on profiles for select using (id = auth.uid() or is_admin());
+create policy "update own profile" on profiles for update using (id = auth.uid());
+```
+
+This is the security backbone: **the admin panel's "gate" is not a hidden route — it is enforced at the database layer.** Even if someone found `/admin` and had a valid Supabase session, every query would fail RLS unless their `profiles.role = 'admin'`.
 
 ---
 
-## 14. Suggested Build Order
+## 8. Admin Panel — Access Control Flow
 
-1. Set up Next.js + Tailwind + Supabase project skeleton; define brand theme tokens (Section 4) in `tailwind.config`.
-2. Build Supabase schema (Section 6) and seed the 5 products + variants.
-3. Build static pages first (Product grid, Product detail, Cart, Checkout) with placeholder images — get the full purchase flow working end-to-end before investing in hero polish.
-4. Generate/source the 5 hero product cutouts (Section 8) with consistent lighting/style.
-5. Build the hero scroll animation in isolation (Framer Motion + Lenis) on its own route/sandbox page, test thoroughly on real mobile devices, then integrate into the homepage.
-6. Performance pass: image optimization, Lighthouse audit, `prefers-reduced-motion` fallback, low-end device testing.
-7. Payments integration + order confirmation flow.
-8. QA across breakpoints, then launch.
+1. Admin visits `/admin/login` (a route that is not linked from the public storefront nav).
+2. Supabase Auth signs them in via email/password.
+3. Middleware (`middleware.ts`) runs on every `/admin/*` request:
+   - Checks for a valid Supabase session.
+   - Queries `profiles.role` for the session's user id.
+   - If no session → redirect to `/admin/login`.
+   - If session exists but `role !== 'admin'` → redirect to storefront home with a "not authorized" toast; **do not** reveal that `/admin` exists as a concept.
+4. Admin accounts are **not created via public sign-up.** They are provisioned by:
+   - Directly inserting a row into `profiles` with `role = 'admin'` via the Supabase dashboard, or
+   - A one-time seed script run by Abdullah.
+   - (Optional, later) A "manage staff" screen inside `/admin/settings` where an existing admin can promote another registered customer to admin.
+5. Session refresh and logout handled via Supabase's standard client-side SDK; admin session cookies are `httpOnly` and separate in scope from customer-facing session handling only in that middleware checks role — the underlying Supabase Auth session mechanism is shared.
+
+---
+
+## 9. Storefront Feature Requirements
+
+### 9.1 Home Page
+- **Hero section is built around Almond Milk as the flagship/signature product** — not a generic rotating banner. The primary hero features the actual almond milk bottle product photography (reused from existing project assets, see Section 10.2a) large and prominent, with supporting copy ("Our signature almond milk" or similar), a direct "Shop Almond Milk" CTA into that product's detail page, and secondary bottle angles as accent imagery around the main shot.
+- A secondary rotating promo banner slot (managed from `/admin/content`) can still run seasonal campaigns further down the page, but it does not replace or compete with the almond milk hero.
+- "Shop by category" grid (Milk, Almond Milk, Yogurt, Butter, Cheese, Ghee) — Almond Milk gets its own category tile even if stored under "Milk" in the data model, since it is the emphasis product.
+- Featured products carousel (`is_featured = true`), with almond milk variants pinned first.
+- Trust strip: farm-to-door freshness, same-day delivery, quality guarantee.
+- Smooth scroll-triggered fade/slide-in animations (Framer Motion `whileInView`); the hero product image gets its own entrance animation (fade + slight scale-in) rather than appearing instantly.
+
+### 9.2 Product Listing & Filtering
+- Grid layout, responsive (2 columns mobile, 4 columns desktop).
+- Filters: category, price range, in-stock only.
+- Sort: price low-high, high-low, newest.
+- Skeleton loaders while fetching (no layout shift).
+
+### 9.3 Product Detail Page
+- Image gallery with zoom-on-hover.
+- Variant selector (e.g. 500ml / 1L) that updates price and stock live.
+- Quantity stepper with stock-aware max limit.
+- "Add to cart" with a satisfying micro-interaction (button morph → checkmark, cart icon bump animation).
+- Related products section.
+
+### 9.4 Cart
+- Slide-over drawer accessible from any page (not a full page navigation) for speed.
+- Line-item quantity edit / remove with optimistic UI updates.
+- Free-delivery progress bar ("Add PKR 500 more for free delivery").
+- Persisted per-user in Supabase `cart_items`; persisted per-guest in `localStorage`, merged into Supabase on login.
+
+### 9.5 Checkout
+- Step flow: Address → Delivery Slot → Payment Method → Review & Place Order.
+- Guest checkout allowed (creates a lightweight order tied to a phone/email, prompts optional account creation after).
+- Discount code field with live validation against `discount_codes`.
+- Order placement is a single server action that: creates `orders` row, creates `order_items` rows, decrements `product_variants.stock_quantity`, and (if card payment) confirms the Stripe payment intent — all inside one flow with rollback on failure.
+
+### 9.6 Account Area
+- Order history with status badges and a simple visual progress tracker (Pending → Confirmed → Packed → Out for Delivery → Delivered).
+- Saved addresses (add/edit/delete, set default).
+- Wishlist.
+
+### 9.7 Visual/UX Requirements
+- Design tokens: dairy-appropriate palette — cream/off-white base, a deep trustworthy blue or forest green as primary accent, warm gold for CTAs (final palette to be extracted from the Cow Fresh logo, consistent with the earlier brand-color-extraction work already done for this project).
+- Typography: a clean geometric sans for headings, a highly legible sans for body text.
+- Motion principles: 150–250ms ease-out for micro-interactions, 300–400ms for page/section transitions; nothing should feel sluggish; respect `prefers-reduced-motion`.
+- Mobile-first: primary nav collapses to a bottom tab bar (Home, Shop, Cart, Account) on small screens for thumb-friendly navigation.
+
+---
+
+## 10. Admin Panel Feature Requirements
+
+### 10.1 Dashboard
+- Today's order count, today's revenue, pending orders needing action.
+- Low-stock alert list (variants below a configurable threshold).
+- Quick links to most recent orders.
+
+### 10.2 Product Management
+- List view: search by name, filter by category/active status.
+- Create/edit form: name, description, category, images (upload to Supabase Storage), variants with price/stock per variant, active/inactive toggle, featured toggle.
+- Bulk actions: activate/deactivate, delete.
+
+#### 10.2a Reusing Existing Product Images
+The project root already contains real product photography (including the almond milk bottle shots). These must be **reused as-is, not regenerated, replaced with stock photography, or re-shot/AI-generated.** Implementation steps:
+
+1. During the clean-slate rebuild (Section 2), copy the existing image files out of the old project structure before deletion, into a temporary holding folder.
+2. On re-scaffold, either:
+   - Place them in `/public/products/` and reference by relative path in `products.image_urls`, **or**
+   - Upload them to a Supabase Storage bucket (e.g. `product-images`) via a one-time seed script, and store the resulting public URLs in `products.image_urls` — this is the preferred approach since it keeps images manageable from the admin panel later.
+3. Write a seed script (`scripts/seed-products.ts` or similar) that maps each existing image filename to its corresponding product/variant row, so the almond milk bottle images are explicitly linked to the Almond Milk product and its variants (not left to guesswork or manual re-upload).
+4. The product image upload UI in `/admin/products/[id]/edit` should still support uploading *new* images going forward — the reuse instruction applies to the initial seed/migration, not to how the admin panel works long-term.
+5. If any product is missing a corresponding existing image, flag it rather than silently generating a placeholder, so Abdullah can supply the correct photo.
+
+### 10.3 Order Management
+- Queue view grouped/filterable by status.
+- Order detail: customer info, items, address, payment status, and a status-update control that customers see reflected in their order tracker.
+- Printable/exportable invoice (simple PDF generation).
+
+### 10.4 Customer Management
+- List of registered customers with order count and lifetime value.
+- Drill into a customer's order history.
+
+### 10.5 Discounts
+- Create/edit/deactivate discount codes with type (percentage/fixed), min order value, expiry.
+
+### 10.6 Content Management
+- Manage homepage hero banners and which products are "featured" without needing a code deploy.
+
+### 10.7 Settings
+- Delivery zones and delivery slot definitions.
+- Store contact info shown in storefront footer.
+
+---
+
+## 11. Non-Functional Requirements
+
+- **Performance:** Largest Contentful Paint < 2.5s on 4G; images served via Next/Image with responsive sizes; Supabase queries indexed on `slug`, `category_id`, `user_id`, `status`.
+- **Security:** All admin mutations protected by RLS as described in Section 7; no service-role key ever exposed to the client; secrets only in server-side Route Handlers/Server Actions.
+- **Accessibility:** Semantic HTML, sufficient color contrast, keyboard-navigable cart/checkout, `prefers-reduced-motion` respected.
+- **Reliability:** Stock decrement and order creation wrapped in a single Postgres transaction (via a Supabase RPC function) to avoid overselling under concurrent checkouts.
+- **Observability:** Basic error logging (e.g. Sentry) on both storefront and admin for checkout and admin-mutation failures.
+
+---
+
+## 12. Suggested Build Phases
+
+| Phase | Scope |
+|---|---|
+| 1 | Supabase schema + RLS policies, project scaffolding, design tokens |
+| 2 | Storefront: home, shop listing, product detail (static/read-only) |
+| 3 | Cart + guest/localStorage sync + Supabase sync on login |
+| 4 | Checkout flow + order creation RPC + stock decrement transaction |
+| 5 | Account area: order history, addresses, wishlist |
+| 6 | Admin: auth gate + dashboard + product management |
+| 7 | Admin: order management + customer management |
+| 8 | Admin: discounts + content management + settings |
+| 9 | Polish pass: animations, loading states, empty states, accessibility audit |
+| 10 | QA, seed data, deployment |
+
+---
+
+## 13. Open Questions for Abdullah
+
+1. Confirm payment method(s): COD only, or COD + card via Stripe/local gateway?
+2. Delivery model: fixed slots (e.g. "6–8 AM", "5–7 PM") or a delivery-zone-based ETA?
+3. Should the admin panel support multiple staff accounts with different permission levels (e.g. order-packer vs full admin), or is a single `admin` role sufficient for v1?
+4. Do you have the existing brand color palette / logo assets from the earlier Cow Fresh PRD to plug into the design tokens, or should a fresh palette be proposed?
+5. Any existing product catalog data (CSV/Excel) to seed the database with, or should placeholder data be used for initial development?
+
+---
+
+*This PRD is written for direct use in an AI code editor (Cursor/Windsurf) as the spec driving implementation. Pair it with an `implementation.md` breaking each phase above into concrete, checkable tasks before starting Phase 1.*
