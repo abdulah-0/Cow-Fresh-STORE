@@ -3,6 +3,7 @@ import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
 import { Header } from "@/app/components/Header";
+import { MobileBottomNav } from "@/app/components/MobileBottomNav";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-poppins" });
@@ -18,8 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-cf-off-white`}>
         <CartProvider>
           <Header />
-          <main className="min-h-screen">{children}</main>
-          <footer style={{ background: "linear-gradient(135deg,#001A57 0%,#000d33 100%)" }} className="text-white pt-14 pb-8">
+          <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+          <MobileBottomNav />
+          <footer style={{ background: "linear-gradient(135deg,#001A57 0%,#000d33 100%)" }} className="text-white pt-14 pb-16 md:pb-8">
             <div className="container mx-auto px-4">
               {/* Top Row */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-10 border-b border-white/10">
