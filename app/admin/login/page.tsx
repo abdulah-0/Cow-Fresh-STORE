@@ -41,10 +41,11 @@ export default function AdminLoginPage() {
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cow_fresh_admin_email", "cowfreshdairy@gmail.com");
+        document.cookie = "cow_fresh_admin_email=cowfreshdairy@gmail.com; path=/; max-age=86400";
       }
       
       router.push("/admin/dashboard");
-    }, 800);
+    }, 400);
   };
 
   return (

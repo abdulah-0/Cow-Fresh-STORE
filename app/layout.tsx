@@ -108,7 +108,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     ["About Us", "/about"],
                     ["Contact", "/contact"],
                     ["My Account", "/account"],
-                    ["Admin Portal", "/admin/dashboard"],
                   ].map(([label, href]) => (
                     <a
                       key={href}
