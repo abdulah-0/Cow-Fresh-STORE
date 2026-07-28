@@ -1,12 +1,26 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
 import { Header } from "@/app/components/Header";
 import { MobileBottomNav } from "@/app/components/MobileBottomNav";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-poppins" });
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["300", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: "Cow Fresh - Farm Fresh Dairy Products",
@@ -16,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-cf-off-white`}>
+      <body className={`${fraunces.variable} ${inter.variable} ${mono.variable} font-sans antialiased bg-ivory text-pine-deep`}>
         <CartProvider>
           <Header />
           <main className="min-h-screen pb-16 md:pb-0">{children}</main>
