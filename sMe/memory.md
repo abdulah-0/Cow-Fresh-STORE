@@ -87,6 +87,13 @@
 - **Summary:** Overhauled `HeroSection.tsx` with signature diagonal Pour-Shape wedge (`#DCEEF2` Sky on `#FAF6EF` Ivory), Fraunces display serif title ("Pure dairy, *poured fresh*"), JetBrains Mono eyebrow labels (`OUR SIGNATURE ALMOND MILK`), dark pill buttons shifting to `--clay` (`#B5652E`) hover states, and floating mono product badges (`Unsweetened · 1L`).
 - **Git Commit:** Phase 12 complete
 
+### Phase 13 — Category Grid & Almond Milk Clay Feature Card (PRD 2.0)
+- **Status:** Completed
+- **Timestamp:** 2026-07-29
+- **Summary:** Created PRD 2.0 "Shop by Category" grid in `app/page.tsx`. Category cards rendered as dark rounded cards with JetBrains Mono small-caps tags (`Signature`, `Everyday`, `Cultured`, `Churned`, `Aged`). Rendered the Almond Milk flagship category tile in warm `--clay` (`#B5652E`) accent background for visual emphasis.
+- **Git Commit:** Phase 13 complete
+
+
 
 
 

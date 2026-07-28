@@ -93,7 +93,111 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── FEATURED PRODUCTS ── */}
+      {/* ── SHOP BY CATEGORY (PRD 2.0) ── */}
+      <section className="py-16 bg-[#FAF6EF]">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#B5652E] block mb-2">
+                COLD-PASTEURIZED SELECTION
+              </span>
+              <h2 className="font-serif font-semibold text-3xl md:text-5xl text-[#12201A] tracking-tight">
+                Shop by Category
+              </h2>
+            </div>
+            <Link
+              href="/products"
+              className="font-sans font-semibold text-sm text-[#1F3B2C] hover:text-[#B5652E] transition-colors flex items-center gap-1"
+            >
+              <span>Explore all categories</span>
+              <span className="font-mono">→</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+            {[
+              {
+                id: "almond-milk",
+                name: "Almond Milk",
+                tag: "Signature",
+                href: "/products/almond-milk",
+                icon: "🥜",
+                isFlagship: true, // Rendered in CLAY accent color!
+              },
+              {
+                id: "milk-packet",
+                name: "Fresh Milk",
+                tag: "Everyday",
+                href: "/products/milk-packet",
+                icon: "🥛",
+                isFlagship: false,
+              },
+              {
+                id: "yogurt-packet",
+                name: "Cultured Dahi",
+                tag: "Cultured",
+                href: "/products/yogurt-packet",
+                icon: "🏺",
+                isFlagship: false,
+              },
+              {
+                id: "lassi",
+                name: "Sweet Lassi",
+                tag: "Churned",
+                href: "/products/lassi",
+                icon: "🥤",
+                isFlagship: false,
+              },
+              {
+                id: "ghee",
+                name: "Desi Ghee",
+                tag: "Aged",
+                href: "/products/desi-ghee",
+                icon: "🧈",
+                isFlagship: false,
+              },
+            ].map((cat) => (
+              <Link key={cat.id} href={cat.href} className="group">
+                <div
+                  className={`rounded-3xl p-6 h-full flex flex-col justify-between transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl ${
+                    cat.isFlagship
+                      ? "bg-[#B5652E] text-[#FAF6EF] shadow-lg ring-2 ring-[#B5652E]/30"
+                      : "bg-[#12201A] text-[#FAF6EF] hover:bg-[#1F3B2C]"
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-6">
+                    <span
+                      className={`font-mono text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full ${
+                        cat.isFlagship
+                          ? "bg-[#FAF6EF]/20 text-[#FAF6EF]"
+                          : "bg-[#DCEEF2]/15 text-[#DCEEF2]"
+                      }`}
+                    >
+                      {cat.tag}
+                    </span>
+                    <span className="text-2xl transition-transform group-hover:scale-110">
+                      {cat.icon}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="font-serif font-semibold text-lg sm:text-xl mb-1">
+                      {cat.name}
+                    </h3>
+                    <span
+                      className={`font-mono text-xs inline-flex items-center gap-1 ${
+                        cat.isFlagship ? "text-[#EFE3C9]" : "text-[#DCEEF2]/70"
+                      }`}
+                    >
+                      Browse range <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
       <section className="py-20 border-t border-b" style={{ background: "var(--cf-white)", borderColor: "rgba(146,204,252,0.2)" }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
