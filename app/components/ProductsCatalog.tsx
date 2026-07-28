@@ -26,7 +26,7 @@ export function ProductsCatalog({ initialProducts }: ProductsCatalogProps) {
   const filteredProducts = initialProducts.filter((product) => {
     const matchesCategory =
       activeCategory === "all" ||
-      (activeCategory === "milk" && (product.category === "milk_bottle" || product.category === "milk_packet" || product.category === "milk")) ||
+      (activeCategory === "milk" && (product.category === "milk_bottle" || product.category === "milk_packet")) ||
       (activeCategory === "lassi" && product.category === "lassi") ||
       (activeCategory === "yogurt" && product.category === "yogurt") ||
       (activeCategory === "ghee" && product.category === "ghee");
