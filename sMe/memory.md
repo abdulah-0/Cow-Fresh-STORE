@@ -32,5 +32,12 @@
 - **Summary:** Implemented cart state via React Context (`CartContext.tsx`) with automatic `localStorage` sync for guests and prepared Supabase sync on login. Built slide-over `CartDrawer.tsx` component with interactive item quantity adjustment, item removal, subtotal calculation, and dynamic Free-Delivery progress bar (PKR 1500 threshold).
 - **Git Commit:** Phase 3 complete
 
+### Phase 4 — Checkout, Order Creation, Stock Decrement
+- **Status:** Completed
+- **Timestamp:** 2026-07-28
+- **Summary:** Enhanced 4-step `/checkout` flow (Address Details → Delivery Slot → Payment Method → Order Review). Added live discount code validation (`FRESH10`, `WELCOME50`, `COWFRESH20`). Written atomic Postgres stored procedure `place_order` in `supabase/schema.sql` to execute order creation, item snapshots, and stock quantity decrements inside a single transaction.
+- **Git Commit:** Phase 4 complete
+
+
 
 

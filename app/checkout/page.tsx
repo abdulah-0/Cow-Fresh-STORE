@@ -28,6 +28,44 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<string>("COD");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Discount code state
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<string>("");
+  const [couponError, setCouponError] = useState<string>("");
+
+  const handleApplyCoupon = () => {
+    setCouponError("");
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return;
+
+    if (code === "FRESH10") {
+      const discount = Math.round(total * 0.1);
+      setDiscountAmount(discount);
+      setAppliedCoupon(code);
+    } else if (code === "WELCOME50") {
+      const discount = Math.min(50, total);
+      setDiscountAmount(discount);
+      setAppliedCoupon(code);
+    } else if (code === "COWFRESH20") {
+      const discount = Math.round(total * 0.2);
+      setDiscountAmount(discount);
+      setAppliedCoupon(code);
+    } else {
+      setCouponError("Invalid or expired discount code.");
+    }
+  };
+
+  const removeCoupon = () => {
+    setCouponCode("");
+    setDiscountAmount(0);
+    setAppliedCoupon("");
+    setCouponError("");
+  };
+
+  const finalTotal = Math.max(0, total - discountAmount);
+
+
   // Available slots (critical for fresh dairy)
   const deliverySlots = [
     { id: "slot1", label: "Early Morning (6:00 AM - 9:00 AM)", description: "Best for breakfast milk" },
@@ -96,7 +134,7 @@ export default function CheckoutPage() {
         delivery_city: shippingData.city,
         delivery_slot: deliverySlot,
         payment_method: paymentMethod,
-        total_amount: total,
+        total_amount: finalTotal,
         items: orderItems
       });
 
@@ -492,7 +530,7 @@ export default function CheckoutPage() {
                       Placing Order...
                     </>
                   ) : (
-                    `Place Order &bull; Rs ${total}`
+                    `Place Order &bull; Rs ${finalTotal}`
                   )}
                 </button>
               )}
@@ -528,11 +566,47 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* Discount Code Input Box */}
+            <div className="border-t border-cf-sky/10 pt-4 space-y-2">
+              <label className="block text-[11px] font-bold text-cf-navy uppercase tracking-wider">
+                Discount Code
+              </label>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl text-xs">
+                  <span className="font-bold text-emerald-800">🎉 {appliedCoupon} (-Rs {discountAmount})</span>
+                  <button onClick={removeCoupon} className="text-xs text-red-500 font-bold hover:underline">Remove</button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="e.g. FRESH10"
+                    className="flex-1 px-3 py-2 bg-cf-off-white border border-cf-sky/30 rounded-xl text-xs uppercase font-bold text-cf-navy focus:outline-none focus:ring-1 focus:ring-cf-green"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    className="px-4 py-2 bg-cf-navy text-white text-xs font-bold rounded-xl hover:bg-cf-navy/90 transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
+              {couponError && <p className="text-[11px] text-red-500">{couponError}</p>}
+            </div>
+
             <div className="border-t border-cf-sky/10 pt-4 space-y-2.5 text-xs">
               <div className="flex justify-between text-cf-charcoal/70">
                 <span>Subtotal</span>
                 <span className="font-bold text-cf-navy">Rs {total}</span>
               </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-emerald-600 font-semibold">
+                  <span>Discount ({appliedCoupon})</span>
+                  <span>-Rs {discountAmount}</span>
+                </div>
+              )}
               <div className="flex justify-between text-cf-charcoal/70">
                 <span>Delivery Charge</span>
                 <span className="text-cf-green font-bold uppercase">Free</span>
@@ -540,7 +614,7 @@ export default function CheckoutPage() {
               
               <div className="border-t border-cf-sky/10 pt-3 flex justify-between text-sm font-extrabold text-cf-navy">
                 <span>Total Amount</span>
-                <span>Rs {total}</span>
+                <span>Rs {finalTotal}</span>
               </div>
             </div>
           </div>

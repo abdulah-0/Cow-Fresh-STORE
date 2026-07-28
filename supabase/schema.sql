@@ -166,3 +166,96 @@ create policy "own addresses only" on addresses for all using (user_id = auth.ui
 
 -- Wishlist Policies
 create policy "own wishlist only" on wishlist_items for all using (user_id = auth.uid());
+
+-- ===================================================
+-- ATOMIC ORDER CREATION & STOCK DECREMENT RPC
+-- ===================================================
+
+create or replace function place_order(
+  p_customer_name text,
+  p_customer_phone text,
+  p_delivery_address text,
+  p_delivery_city text,
+  p_delivery_slot text,
+  p_payment_method text,
+  p_subtotal numeric(10,2),
+  p_discount_amount numeric(10,2),
+  p_total numeric(10,2),
+  p_items jsonb
+) returns uuid as $$
+declare
+  v_order_id uuid;
+  v_item jsonb;
+  v_variant_id uuid;
+  v_qty int;
+  v_current_stock int;
+begin
+  -- 1. Create the order row
+  insert into orders (
+    user_id,
+    status,
+    delivery_slot,
+    payment_method,
+    payment_status,
+    subtotal,
+    discount_amount,
+    delivery_fee,
+    total
+  ) values (
+    auth.uid(),
+    'pending',
+    p_delivery_slot,
+    p_payment_method,
+    'unpaid',
+    p_subtotal,
+    p_discount_amount,
+    0,
+    p_total
+  ) returning id into v_order_id;
+
+  -- 2. Process order items and decrement stock
+  for v_item in select * from jsonb_array_elements(p_items)
+  loop
+    v_variant_id := (v_item->>'variant_id')::uuid;
+    v_qty := (v_item->>'quantity')::int;
+
+    -- Check stock availability if variant ID is provided
+    if v_variant_id is not null then
+      select stock_quantity into v_current_stock
+      from product_variants
+      where id = v_variant_id for update;
+
+      if v_current_stock < v_qty then
+        raise exception 'Insufficient stock for product variant ID: %', v_variant_id;
+      end if;
+
+      -- Decrement stock
+      update product_variants
+      set stock_quantity = stock_quantity - v_qty
+      where id = v_variant_id;
+    end if;
+
+    -- Insert order item snapshot
+    insert into order_items (
+      order_id,
+      variant_id,
+      product_name,
+      variant_name,
+      unit_price,
+      quantity,
+      line_total
+    ) values (
+      v_order_id,
+      v_variant_id,
+      v_item->>'product_name',
+      v_item->>'variant_name',
+      (v_item->>'unit_price')::numeric(10,2),
+      v_qty,
+      ((v_item->>'unit_price')::numeric(10,2) * v_qty)
+    );
+  end loop;
+
+  return v_order_id;
+end;
+$$ language plpgsql security definer;
+
