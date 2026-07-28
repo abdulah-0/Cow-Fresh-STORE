@@ -93,6 +93,13 @@
 - **Summary:** Created PRD 2.0 "Shop by Category" grid in `app/page.tsx`. Category cards rendered as dark rounded cards with JetBrains Mono small-caps tags (`Signature`, `Everyday`, `Cultured`, `Churned`, `Aged`). Rendered the Almond Milk flagship category tile in warm `--clay` (`#B5652E`) accent background for visual emphasis.
 - **Git Commit:** Phase 13 complete
 
+### Phase 14 — Product Cards & Catalog Refresh (PRD 2.0)
+- **Status:** Completed
+- **Timestamp:** 2026-07-29
+- **Summary:** Refreshed `ProductsCatalog.tsx` with PRD 2.0 product card specifications: soft `--sky` (`#DCEEF2`) thumbnail area, Fraunces serif product names, JetBrains Mono meta lines (`Unsweetened · 1L`), and circular add-to-cart buttons inverting to filled `--pine-deep` (`#12201A`) on hover.
+- **Git Commit:** Phase 14 complete
+
+
 
 
 
