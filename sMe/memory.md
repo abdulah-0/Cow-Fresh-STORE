@@ -20,3 +20,10 @@
 - **Summary:** Defined complete Supabase SQL schema in `supabase/schema.sql` (`profiles`, `categories`, `products`, `product_variants`, `addresses`, `cart_items`, `orders`, `order_items`, `discount_codes`, `wishlist_items`, and `is_admin()` RLS helper). Created `lib/supabase/client.ts` and `lib/supabase/server.ts`. Extended design tokens and created responsive `MobileBottomNav` shell component.
 - **Git Commit:** Phase 1 complete
 
+### Phase 2 — Storefront: Home, Shop Listing, Product Detail
+- **Status:** Completed
+- **Timestamp:** 2026-07-28
+- **Summary:** Verified home page featuring Almond Milk flagship hero with smooth scroll interactive flight animations (`HeroSection.tsx`). Verified shop listing (`ProductsCatalog.tsx`) with category pill filters, live search, and dynamic responsive grid. Verified product detail page (`ProductDetailClient.tsx`) with variant switcher, image gallery, quantity stepper, nutrition breakdown, and mobile sticky CTA bar.
+- **Git Commit:** Phase 2 complete
+
+
