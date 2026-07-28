@@ -26,12 +26,29 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   
-  // Dashboard sections: "orders" | "products" | "customers"
-  const [currentSection, setCurrentSection] = useState<"orders" | "products" | "customers">("orders");
+  // Dashboard sections: "orders" | "products" | "customers" | "discounts" | "settings"
+  const [currentSection, setCurrentSection] = useState<"orders" | "products" | "customers" | "discounts" | "settings">("orders");
   const [activeOrderTab, setActiveOrderTab] = useState<string>("all");
 
-  // Printable invoice modal state
-  const [printingOrder, setPrintingOrder] = useState<Order | null>(null);
+  // Discount code management state
+  const [discountsList, setDiscountsList] = useState([
+    { id: "d1", code: "FRESH10", type: "percentage", value: 10, min_order: 500, active: true },
+    { id: "d2", code: "WELCOME50", type: "fixed", value: 50, min_order: 300, active: true },
+    { id: "d3", code: "COWFRESH20", type: "percentage", value: 20, min_order: 1000, active: true }
+  ]);
+  const [newCode, setNewCode] = useState("");
+  const [newType, setNewType] = useState<"percentage" | "fixed">("percentage");
+  const [newValue, setNewValue] = useState("");
+
+  // Store settings state
+  const [storePhone, setStorePhone] = useState("+92 300 1234567");
+  const [storeEmail, setStoreEmail] = useState("cowfreshdairy@gmail.com");
+  const [deliverySlotsList, setDeliverySlotsList] = useState([
+    "Early Morning (6:00 AM - 9:00 AM)",
+    "Morning (9:00 AM - 12:00 PM)",
+    "Afternoon (2:00 PM - 5:00 PM)",
+    "Evening (6:00 PM - 9:00 PM)"
+  ]);
 
   // Product editor modal state
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -412,10 +429,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Unified Section Selectors */}
-        <div className="flex bg-cf-navy/5 p-1 rounded-2xl max-w-md gap-2">
+        <div className="flex flex-wrap bg-cf-navy/5 p-1 rounded-2xl max-w-2xl gap-2">
           <button
             onClick={() => setCurrentSection("orders")}
-            className={`flex-1 py-3 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+            className={`flex-1 min-w-[90px] py-2.5 px-3 rounded-xl text-xs font-bold text-center transition-all ${
               currentSection === "orders" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
             }`}
           >
@@ -423,7 +440,7 @@ export default function AdminDashboard() {
           </button>
           <button
             onClick={() => setCurrentSection("products")}
-            className={`flex-1 py-3 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+            className={`flex-1 min-w-[90px] py-2.5 px-3 rounded-xl text-xs font-bold text-center transition-all ${
               currentSection === "products" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
             }`}
           >
@@ -431,11 +448,27 @@ export default function AdminDashboard() {
           </button>
           <button
             onClick={() => setCurrentSection("customers")}
-            className={`flex-1 py-3 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+            className={`flex-1 min-w-[90px] py-2.5 px-3 rounded-xl text-xs font-bold text-center transition-all ${
               currentSection === "customers" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
             }`}
           >
             👥 Customers
+          </button>
+          <button
+            onClick={() => setCurrentSection("discounts")}
+            className={`flex-1 min-w-[90px] py-2.5 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+              currentSection === "discounts" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
+            }`}
+          >
+            🏷️ Discounts
+          </button>
+          <button
+            onClick={() => setCurrentSection("settings")}
+            className={`flex-1 min-w-[90px] py-2.5 px-3 rounded-xl text-xs font-bold text-center transition-all ${
+              currentSection === "settings" ? "bg-cf-navy text-white shadow-md" : "text-cf-navy/60 hover:text-cf-navy"
+            }`}
+          >
+            ⚙️ Settings
           </button>
         </div>
 

@@ -56,6 +56,13 @@
 - **Summary:** Enhanced order queue filters (`all`, `pending`, `delivered`, `cancelled`) with instant status update select controls that propagate to customer tracking in real time. Added printable invoice exporter view and integrated Customer Management portal inside `/admin/dashboard` tracking customer lifetime order counts and total spent value.
 - **Git Commit:** Phase 7 complete
 
+### Phase 8 — Admin: Discounts, Content Management, Settings
+- **Status:** Completed
+- **Timestamp:** 2026-07-28
+- **Summary:** Integrated Discounts control portal for creating active promo codes (`percentage` & `fixed` discounts) in `/admin/dashboard`. Added Store Settings section for configuring customer service phone/email and customizable delivery time slots.
+- **Git Commit:** Phase 8 complete
+
+
 
 
 
