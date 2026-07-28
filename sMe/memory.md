@@ -81,6 +81,13 @@
 - **Summary:** Integrated Google Fonts (`Fraunces` serif, `Inter` sans, `JetBrains Mono` label font) in `app/layout.tsx`. Configured exact PRD 2.0 Morning Pour color tokens (`#FAF6EF` Ivory, `#12201A` Pine Deep, `#1F3B2C` Pine, `#C9A876` Oat, `#DCEEF2` Sky, `#B5652E` Clay) and pour-shape clip paths in `app/globals.css`.
 - **Git Commit:** Phase 11 complete
 
+### Phase 12 — Signature Pour-Shape & Hero Section Overhaul (PRD 2.0)
+- **Status:** Completed
+- **Timestamp:** 2026-07-29
+- **Summary:** Overhauled `HeroSection.tsx` with signature diagonal Pour-Shape wedge (`#DCEEF2` Sky on `#FAF6EF` Ivory), Fraunces display serif title ("Pure dairy, *poured fresh*"), JetBrains Mono eyebrow labels (`OUR SIGNATURE ALMOND MILK`), dark pill buttons shifting to `--clay` (`#B5652E`) hover states, and floating mono product badges (`Unsweetened · 1L`).
+- **Git Commit:** Phase 12 complete
+
+
 
 
 
